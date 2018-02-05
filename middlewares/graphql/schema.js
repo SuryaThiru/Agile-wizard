@@ -3,54 +3,174 @@
   exports a GraphQLSchema
  */
 
+const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
+const bcrypt = require('bcrypt');
 
-const { buildSchema } = require('graphql');
+const {
+  GraphQLString,
+  GraphQLSchema,
+  GraphQLObjectType
+} = require('graphql');
 
-let schema = buildSchema(`  
-  type Fest {
-      id: ID!,
-      name: String!,
-      venue: String!,
-      tags: [String]!,
-      description: String!,
-      speakers: [String],
-      contact: [String],
-      RSVPs: [String],
-      attendance: [String],
-      feedback: [Feedback]
-  }
-  
-  type User {
-    firstname: String!,
-    lastname: String,
-    email: String!,
-    regno: String,
-    mobile: String,
-    gender: String,    
-  }
-  
-  type Blog {
-    author: String!,
-    content: String!,
-    tags: [String]!,
-    read: [String],
-    liked: [String]  
-  }
-  
-  type Manager {
-    firstname: String!,
-    lastname: String,
-    email: String!,
-    password: String,
-  }
-  
-  enum Feedback {
-    HAPPY
-    OKAY
-    SAD
-   }
-`);
+const {
+  registerResponse,
+  authResponse
+} = require('./types');
 
-// TODO password hash, check all types with design
+const {
+  userInput,
+  viewerInput
+} = require('./inputs');
 
-module.export = schema;
+const {
+  test,
+  formatErrors
+} = require('./utils');
+
+let serviceaccount = require('../config/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceaccount),
+  databaseURL: "https://skindoc-10ef5.firebaseio.com"
+});
+let db = admin.firestore();
+
+let queryType = new GraphQLObjectType({
+  name: 'Query',
+  fields:{
+    findUser:{
+      type: registerResponse,
+      args: {
+        viewer: {type: viewerInput }
+      },
+      resolve: (root, something)=>{
+        if (!something.viewer){
+          return {
+            flag: false,
+            user: null,
+            errors: "Token is invalid."
+          }
+        }
+        let {token} = something.viewer;
+        return jwt.verify(token, process.env['jwt_secret'], (err, decoded)=>{
+          if(err) {
+            let message = formatErrors(err);
+            return {
+              flag: false,
+              user: null,
+              errors: message
+            }
+          }
+          let {email} = decoded;
+          return db.collection("users").doc(email).get().then((doc)=>{
+            if(!doc.exists){
+              return{
+                flag: false,
+                user: null,
+                errors: "user does not exist"
+              }
+            }
+            else{
+              console.log(doc.data());
+              return doc.data();
+            }
+          }).then((dat)=>{
+            return {
+              flag: true,
+              user: dat,
+              errors: null
+            }
+          });
+        });
+      }
+    }
+  }
+});
+
+let mutationType = new GraphQLObjectType({
+  name:'Mutation',
+  fields:{
+    createUser: {
+      type: registerResponse,
+      args: {
+        input: {type: userInput}
+      },
+      resolve: (root, params) => {
+        params.input.password = bcrypt.hashSync(params.input.password, 10);
+        let users = db.collection('users').doc(params.input.email);
+        let userData = JSON.parse(JSON.stringify(params.input));
+        return users.create(userData).then(()=>{
+          return test(params.input);
+        }).then((obj)=>{
+          console.log(obj);
+          return obj;
+        }).catch((err)=>{
+          return {
+            flag: false,
+            user: null,
+            token: null,
+            errors: formatErrors(err)
+          }
+        });
+      }
+    },
+    authenticate:{
+      type: authResponse,
+      args:{
+        email: {type: GraphQLString},
+        password: {type: GraphQLString}
+      },
+      resolve: (root, params)=>{
+        let {password, email} = params;
+        return db.collection("users").doc(email).get().then((doc)=>{
+          if(!doc.exists)
+            return false;
+          else
+            return doc.data();
+        }).then((dat)=>{
+          console.log(dat);
+          if(!dat){
+            return{
+              flag: true,
+              errors: "Invalid password.",
+              token: null
+            }
+          }
+          else {
+            return bcrypt.compare(password, dat.password).then((res) => {
+              if (res) {
+                return {
+                  flag: true,
+                  errors: null,
+                  token: jwt.sign({email: email}, process.env['jwt_secret'])
+                }
+              }
+              else {
+                return {
+                  flag: false,
+                  errors: "something is wrong",
+                  token: null,
+                }
+              }
+            }).catch(err => {
+              return {
+                flag: false,
+                errors: err.message,
+                token: null,
+              }
+            });
+          }
+        }).catch((err)=>{
+          console.log(err);
+        });
+      }
+    }
+  }
+});
+
+const schema = new GraphQLSchema({
+  query: queryType,
+  mutation: mutationType
+});
+
+module.exports.schema = schema;
