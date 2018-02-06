@@ -1,5 +1,5 @@
 node_modules/
 .idea
-
+config/
 middlewares/graphql/routes/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1.json
 middlewares/graphql/node_modules
