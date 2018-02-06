@@ -29,8 +29,8 @@ let feed = new GraphQLObjectType({
   }
 });
 
-let registerResponse = new GraphQLObjectType({
-  name:'RegisterResponse',
+let authResponse = new GraphQLObjectType({
+  name:'authResponse',
   fields: {
     flag: {type: GraphQLBoolean},
     errors: {type: GraphQLString},
@@ -48,8 +48,8 @@ let queryResponse = new GraphQLObjectType({
   }
 });
 
-let authResponse = new GraphQLObjectType({
-  name: 'authResponse',
+let registerResponse = new GraphQLObjectType({
+  name: 'registerResponse',
   fields:{
     flag: {type: GraphQLBoolean},
     token: {type: GraphQLString},

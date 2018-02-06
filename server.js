@@ -1,10 +1,10 @@
 const express = require('express');
-const path = require('path');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 
 
-let graphqlHandler = require('./middlewares/graphql/index');
+const graphqlHTTP = require('express-graphql');
+const {schema} = require('./graphql/schema');
 
 let app = express();
 
@@ -12,7 +12,10 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/graphql', graphqlHandler);
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true
+}));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

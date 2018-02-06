@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/SuryaThiru/Agile-wizard#readme",
   "dependencies": {
+    "@sendgrid/mail": "^6.2.1",
     "bcrypt": "^1.0.3",
     "express": "^4.16.2",
     "express-graphql": "^0.6.11",
