@@ -1,8 +1,8 @@
+const jwt = require('jsonwebtoken');
 const test = (stuff)=>{
   return {
     flag: true,
     errors: null,
-    user: null,
     token: jwt.sign({email: stuff.email}, process.env['jwt_secret'])
   }
 };

@@ -6,6 +6,15 @@
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
 const bcrypt = require('bcrypt');
+const message = {
+    to: 'amrut546@gmail.com',
+    from: 'onimusha702@gmail.com',
+    subject: 'Hey buddy!',
+    text: 'is this working',
+    html: '<strong>Html test</strong>'
+};
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env['sendgrid']);
 
 const {
   GraphQLString,
@@ -103,11 +112,23 @@ let mutationType = new GraphQLObjectType({
           return test(params.input);
         }).then((obj)=>{
           console.log(obj);
-          return obj;
+          return sgMail.send(message).then(()=>{
+            function omega(){
+              return obj;
+            }
+            return omega();
+          }).then((dat)=>{
+            return dat;
+          }).catch((err)=>{
+            return {
+              flag: false,
+              token: false,
+              errors: formatErrors(err)
+            }
+          });
         }).catch((err)=>{
           return {
             flag: false,
-            user: null,
             token: null,
             errors: formatErrors(err)
           }
@@ -132,7 +153,8 @@ let mutationType = new GraphQLObjectType({
           if(!dat){
             return{
               flag: true,
-              errors: "Invalid password.",
+              errors: "Invalid username",
+              user: null,
               token: null
             }
           }
@@ -142,21 +164,24 @@ let mutationType = new GraphQLObjectType({
                 return {
                   flag: true,
                   errors: null,
+                  user: dat,
                   token: jwt.sign({email: email}, process.env['jwt_secret'])
                 }
               }
               else {
                 return {
                   flag: false,
-                  errors: "something is wrong",
-                  token: null,
+                  errors: "Invalid Password.",
+                  user: dat,
+                  token: null
                 }
               }
             }).catch(err => {
               return {
                 flag: false,
                 errors: err.message,
-                token: null,
+                user: dat,
+                token: null
               }
             });
           }

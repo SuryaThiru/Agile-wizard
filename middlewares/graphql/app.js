@@ -8,8 +8,6 @@ let index = require('./routes/index');
 let users = require('./routes/users');
 let {schema, root} = require('./schema');
 const graphqlHTTP = require('express-graphql');
-const mongoose = require('mongoose');
-
 let app = express();
 
 // view engine setup
