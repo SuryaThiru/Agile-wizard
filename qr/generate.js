@@ -6,4 +6,9 @@ function getQR(value) {
   return QRcode.toDataURL(value);
 }
 
+getQR("9t6NFkN33v4jYd3cil3V").then(dat => {
+  console.log(dat);
+}).catch(err => {
+  console.log(err);
+});
 module.exports = getQR;

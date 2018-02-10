@@ -7,18 +7,15 @@ admin.initializeApp ({
 
 let db = admin.firestore();
 
-db.collection('fests').where('ID','==',3)
-  .get()
-  .then(snapshot=>{
-    console.log(snapshot);
-    if(!snapshot.empty)
-      snapshot.forEach(doc =>{
-        console.log(doc.data());
-        console.log(doc.id);
-      });
-
-    else
-      console.log("Doesnt exist not working");
+db.collection('fests').doc("9t6NFkN33v4jYd3cil3V")
+  .update({QRCODE: "test"})
+  .then(()=>{
+    // console.log(snapshot);
+    // if(!snapshot.empty)
+    //   snapshot.forEach(doc =>{
+    //     console.log(doc.data());
+    //     console.log(doc.id);
+    console.log("success");
 }).catch(err=>{
   console.log(err);
 });

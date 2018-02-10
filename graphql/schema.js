@@ -7,6 +7,7 @@ const {
   GraphQLString,
   GraphQLSchema,
   GraphQLObjectType,
+  GraphQLInt
 } = require('graphql');
 
 const {
@@ -86,6 +87,15 @@ let mutationType = new GraphQLObjectType({
         ID: {type: GraphQLString}
       },
       resolve: toggleFest
+    },
+    EnableQr:{
+      type: generalResponse,
+      args:{
+        ID: {type: GraphQLString},
+        viewer:{type: viewerInput},
+        timelimit: {type: GraphQLInt}
+      },
+      resolve: EnableQr
     }
   }
 });
