@@ -2,7 +2,8 @@ let {
   GraphQLString,
   GraphQLNonNull,
   GraphQLInputObjectType,
-  GraphQLBoolean
+  GraphQLBoolean,
+  GraphQLList
 } = require('graphql');
 
 
@@ -27,7 +28,27 @@ let viewerInput = new GraphQLInputObjectType({
   }
 });
 
+
+// Carpenter's input createFest
+let festInput = new GraphQLInputObjectType({
+    name: 'festInput',
+    fields:{
+      name: {type: new GraphQLNonNull(GraphQLString)},
+      venue: {type: new GraphQLNonNull(GraphQLString)},
+      tags: {type: new GraphQLList(GraphQLString)},
+      description: {type: new GraphQLNonNull(GraphQLString)},
+      speakers: {type: new GraphQLList(GraphQLString)},
+      contact: {type: new GraphQLNonNull(new GraphQLList(GraphQLString))},
+      link: {type: new GraphQLList(GraphQLString)},
+      isActive: {type: GraphQLBoolean},
+      RSVP: {type: new GraphQLList(GraphQLString)},
+      attendance : {type: new GraphQLNonNull(new GraphQLList(GraphQLString))},
+      feedback: {type: new GraphQLList(GraphQLString)},
+    }
+});
+
 module.exports = {
   userInput: userInput,
-  viewerInput: viewerInput
+  viewerInput: viewerInput,
+  festInput: festInput
 };

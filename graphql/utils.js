@@ -8,6 +8,16 @@ const test = (stuff)=>{
   }
 };
 
+const constructMessage = (email) =>{
+  return {
+    to: email,
+    from: 'onimusha702@gmail.com',
+    subject: 'verification Mail',
+    text: 'balls and balls',
+    html: '<strong>Insert Html here</strong>',
+  }
+};
+
 const formatErrors = (e) => {
   console.log(e.code);
   if(e.name === 'JsonWebTokenError'){
@@ -19,7 +29,15 @@ const formatErrors = (e) => {
   return e.message;
 };
 
+const validate =  (email)=>{
+    let emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+    return emailRegex.test(email); // Assuming email has a text attribute
+};
+
+
 module.exports = {
   test: test,
-  formatErrors: formatErrors
+  formatErrors: formatErrors,
+  constructMessage: constructMessage,
+  validate: validate
 };

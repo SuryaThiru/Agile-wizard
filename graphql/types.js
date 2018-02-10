@@ -2,9 +2,14 @@ let {
   GraphQLString,
   GraphQLObjectType,
   GraphQLNonNull,
-  GraphQLBoolean
+  GraphQLBoolean,
+  GraphQLList,
+  GraphQLInt
 } = require('graphql');
 
+// Schema for Agile-wizard
+
+// User details Schema
 let userType = new GraphQLObjectType({
   name: 'User',
   fields:{
@@ -19,16 +24,7 @@ let userType = new GraphQLObjectType({
   }
 });
 
-let feed = new GraphQLObjectType({
-  name: 'weekly_feed',
-  fields:{
-    status_code: {type: GraphQLString},
-    Type: {type: GraphQLString},
-    description: {type: GraphQLString},
-    link: {type: GraphQLString}
-  }
-});
-
+// Response for Authentication mutation
 let authResponse = new GraphQLObjectType({
   name:'authResponse',
   fields: {
@@ -39,6 +35,7 @@ let authResponse = new GraphQLObjectType({
   }
 });
 
+// Response for findUser
 let queryResponse = new GraphQLObjectType({
   name: 'queryResponse',
   fields:{
@@ -48,6 +45,7 @@ let queryResponse = new GraphQLObjectType({
   }
 });
 
+// Response to the CreateUser Query
 let registerResponse = new GraphQLObjectType({
   name: 'registerResponse',
   fields:{
@@ -57,10 +55,81 @@ let registerResponse = new GraphQLObjectType({
   }
 });
 
+// Feedback schema
+let feedback = new GraphQLObjectType({
+    name: 'feedback',
+    fields:{
+        email: {type: GraphQLString},
+        response: {type: GraphQLString}
+    }
+});
+
+// Fests schema common for user app
+let userFeed = new GraphQLObjectType({
+  name: 'userFeed',
+  fields:{
+    ID: {type: new GraphQLNonNull(GraphQLString)},
+    name: {type: new GraphQLNonNull(GraphQLString)},
+    venue: {type: new GraphQLNonNull(GraphQLString)},
+    tags: {type: new GraphQLList(GraphQLString)},
+    description: {type: new GraphQLNonNull(GraphQLString)},
+    speakers: {type: new GraphQLList(GraphQLString)},
+    contact: {type: new GraphQLList(GraphQLString)},
+    link: {type: new GraphQLList(GraphQLString)},
+  }
+});
+
+// Fests schema for innocent carpenter
+let carpenterFeed = new GraphQLObjectType({
+    name: 'carpenterFeed',
+    fields:{
+        ID: {type: new GraphQLNonNull(GraphQLString)},
+        name: {type: new GraphQLNonNull(GraphQLString)},
+        venue: {type: new GraphQLNonNull(GraphQLString)},
+        tags: {type: new GraphQLList(GraphQLString)},
+        description: {type: new GraphQLNonNull(GraphQLString)},
+        speakers: {type: new GraphQLList(GraphQLString)},
+        RSVP: {type: new GraphQLList(GraphQLString)},
+        attendance : {type: new GraphQLNonNull(new GraphQLList(GraphQLString))},
+        contact: {type: new GraphQLList(GraphQLString)},
+        link: {type: new GraphQLList(GraphQLString)},
+        feedback: {type: new GraphQLList(feedback)},
+        isActive: {type: GraphQLBoolean}
+    }
+});
+
+// Response for querying fests collection/ getFeed query
+let feedResponse = new GraphQLObjectType({
+    name: 'feedResponse',
+    fields:{
+        flag: {type: GraphQLBoolean},
+        errors: {type: GraphQLString},
+        feed: {type: new GraphQLList(userFeed)}
+    }
+});
+
+let generalResponse = new GraphQLObjectType({
+  name: 'addFeedResponse',
+  fields:{
+    flag: {type: GraphQLBoolean},
+    errors: {type: GraphQLString}
+  }
+});
+
+let festResponse = new GraphQLObjectType({
+  name: 'festResponse',
+  fields:{
+    flag: {type: GraphQLBoolean},
+    errors: {type: GraphQLString},
+    fest: {type: carpenterFeed}
+  }
+});
+
 module.exports = {
   registerResponse: registerResponse,
   queryResponse: queryResponse,
   authResponse: authResponse,
-  userType: userType,
-  feed: feed
+  feedResponse: feedResponse,
+  generalResponse: generalResponse,
+  festResponse: festResponse
 };
