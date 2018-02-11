@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
-const admin = require('firebase-admin');
 const bcrypt = require('bcrypt');
 const sgMail = require('@sendgrid/mail');
-const serviceaccount = require('../config/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1');
+const db = require('./db');
+// const admin = require('firebase-admin');
+// const serviceaccount = require('../config/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1');
 
 
 const {
@@ -13,12 +14,12 @@ const {
 
 
 sgMail.setApiKey(process.env['sendgrid']);
-admin.initializeApp ({
-    credential: admin.credential.cert(serviceaccount),
-    databaseURL: "https://skindoc-10ef5.firebaseio.com"
-});
-
-let db = admin.firestore();
+// admin.initializeApp ({
+//     credential: admin.credential.cert(serviceaccount),
+//     databaseURL: "https://skindoc-10ef5.firebaseio.com"
+// });
+//
+// let db = admin.firestore();
 
 
 // Query Resolvers
@@ -278,7 +279,7 @@ const toggleFest = (root, params) => {
   })
 };
 
-const EnableQr = (root, params) => {
+const enableQr = (root, params) => {
   // params.timelimit
   // params.ID
   let {token} = params.viewer;
@@ -294,9 +295,12 @@ const EnableQr = (root, params) => {
     let query = db.collection('fests').doc(params.ID);
     //loop update
     return query.update({QRCODE: "place qr code here"})
-      .then(()=>{
-
-      }).catch(err =>{
+      .then(() => {
+        return {
+          flag: true,
+          status: 'qrcode generation initiated'
+        }
+      }).catch(err => {
         return {
           flag: false,
           errors: err.message
@@ -311,5 +315,6 @@ module.exports = {
   createUser: createUser,
   authenticate: authenticate,
   createFest: createFest,
-  toggleFest: toggleFest
+  toggleFest: toggleFest,
+  EnableQr: enableQr
 };

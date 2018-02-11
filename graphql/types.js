@@ -94,7 +94,8 @@ let carpenterFeed = new GraphQLObjectType({
         contact: {type: new GraphQLList(GraphQLString)},
         link: {type: new GraphQLList(GraphQLString)},
         feedback: {type: new GraphQLList(feedback)},
-        isActive: {type: GraphQLBoolean}
+        isActive: {type: GraphQLBoolean},
+        QRcode: {type: GraphQLString}
     }
 });
 
