@@ -278,6 +278,33 @@ const toggleFest = (root, params) => {
   })
 };
 
+const EnableQr = (root, params) => {
+  // params.timelimit
+  // params.ID
+  let {token} = params.viewer;
+  return jwt.verify(token, 'secret', (err, decoded) => {
+    if (err) {
+      console.log(err);
+      return {
+        flag: false,
+        errors: "Invalid token"
+      }
+    }
+    // return type { flag: <bool>, errors: null or appropriate message }
+    let query = db.collection('fests').doc(params.ID);
+    //loop update
+    return query.update({QRCODE: "place qr code here"})
+      .then(()=>{
+
+      }).catch(err =>{
+        return {
+          flag: false,
+          errors: err.message
+        }
+    })
+  })
+};
+
 module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
