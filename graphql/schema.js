@@ -31,7 +31,7 @@ const {
   authenticate,
   createFest,
   toggleFest
-} = require('./Resolvers');
+} = require('./resolvers');
 
 let queryType = new GraphQLObjectType({
   name: 'Query',

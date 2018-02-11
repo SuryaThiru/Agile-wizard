@@ -33,20 +33,21 @@ const findUser = (root, something)=>{
           errors: message
         }
     }
+
     let {email} = decoded;
     return db.collection("users").doc(email).get()
       .then((doc) => {
-      if(!doc.exists){
-        return{
-          flag: false,
-          user: null,
-          errors: "user does not exist"
+        if(!doc.exists){
+          return{
+            flag: false,
+            user: null,
+            errors: "user does not exist"
+          }
         }
-      }
-      else{
-        console.log(doc.data());
-        return doc.data();
-      }
+        else{
+          console.log(doc.data());
+          return doc.data();
+        }
     }).then((dat)=>{
       return {
         flag: true,
@@ -252,6 +253,7 @@ const toggleFest = (root, params) => {
             errors: "Invalid ID."
           }
         }
+
         let docZ = doc.data();
         return query.update({isActive: !docZ.isActive})
           .then(()=>{

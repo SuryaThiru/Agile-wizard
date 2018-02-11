@@ -75,7 +75,7 @@ let userFeed = new GraphQLObjectType({
     description: {type: new GraphQLNonNull(GraphQLString)},
     speakers: {type: new GraphQLList(GraphQLString)},
     contact: {type: new GraphQLList(GraphQLString)},
-    link: {type: new GraphQLList(GraphQLString)},
+    link: {type: new GraphQLList(GraphQLString)}
   }
 });
 
