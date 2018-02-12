@@ -13,7 +13,7 @@ function qrLoop(festID, timelimit, updateInterval) {
   let doc = db.collection('fests').doc(festID);
   let ct = new CountDownTimer(timelimit);
 
-  let timer = setTimeInterval(() => {
+  let timer = setInterval(() => {
     if (!ct.isTimeUp()) {
       updateqrURL(doc);
       console.log('starting qr loop');
@@ -22,7 +22,7 @@ function qrLoop(festID, timelimit, updateInterval) {
       clearInterval(timer);
       console.log('ending qr loop');
     }
-  }, updateInterval);
+  }, updateInterval * 1000);
 }
 
 function updateqrURL(doc) {
@@ -30,12 +30,11 @@ function updateqrURL(doc) {
 
   getQR(id)
     .then(url => {
-      if(!err) {
-        // update DB
-        doc.update({QRcode: url})
-          .then(console.log)
-          .catch(err => console.log(err))
-      }
+      // update DB
+      doc.update({QRcode: url})
+        .then(console.log)
+        .catch(err => console.log(err))
+
     })
     .catch(err => console.log(err))
 }
@@ -48,7 +47,6 @@ function CountDownTimer(minutes) {
   this.isTimeUp = function () {
     let currentTime = new Date();
     let diff = (currentTime - this.startTime) / (1000 * 60);
-    console.log(diff);
     return diff > this.countFrom;
   }
 }

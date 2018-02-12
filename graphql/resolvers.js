@@ -2,8 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const sgMail = require('@sendgrid/mail');
 const db = require('./db');
-// const admin = require('firebase-admin');
-// const serviceaccount = require('../config/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1');
+const qrloop = require('./qr/qrloop');
 
 
 const {
@@ -14,12 +13,6 @@ const {
 
 
 sgMail.setApiKey(process.env['sendgrid']);
-// admin.initializeApp ({
-//     credential: admin.credential.cert(serviceaccount),
-//     databaseURL: "https://skindoc-10ef5.firebaseio.com"
-// });
-//
-// let db = admin.firestore();
 
 
 // Query Resolvers
@@ -307,6 +300,7 @@ const enableQr = (root, params) => {
     //       errors: err.message
     //     }
     // })
+    qrloop(params.ID, params.timelimit, 5);
 
     return {
       flag: false,
@@ -323,5 +317,5 @@ module.exports = {
   authenticate: authenticate,
   createFest: createFest,
   toggleFest: toggleFest,
-  EnableQr: enableQr
+  enableQr: enableQr
 };
