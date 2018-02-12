@@ -4,15 +4,25 @@ const db = require('../db');
 
 function getQR(value) {
   // returns a promise that resolves to a data url
-
   return QRcode.toDataURL(value);
 }
 
-function qrLoop(festID, timelimit, updateInterval) {  
-  let ct = new CountDownTimer(timelimit);
-  let doc = db.collection('fests').doc(festID);
+// TODO error handling
 
-  // TODO error handling and linking with resolvers
+function qrLoop(festID, timelimit, updateInterval) {
+  let doc = db.collection('fests').doc(festID);
+  let ct = new CountDownTimer(timelimit);
+
+  let timer = setTimeInterval(() => {
+    if (!ct.isTimeUp()) {
+      updateqrURL(doc);
+      console.log('starting qr loop');
+    }
+    else {
+      clearInterval(timer);
+      console.log('ending qr loop');
+    }
+  }, updateInterval);
 }
 
 function updateqrURL(doc) {
@@ -24,10 +34,10 @@ function updateqrURL(doc) {
         // update DB
         doc.update({QRcode: url})
           .then(console.log)
-          .catch(err => return err)
+          .catch(err => console.log(err))
       }
     })
-    .catch(err => return err)
+    .catch(err => console.log(err))
 }
 
 function CountDownTimer(minutes) {
