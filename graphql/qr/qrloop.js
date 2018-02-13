@@ -18,10 +18,11 @@ function qrLoop(festID, timelimit, updateInterval) {
     }
     else {
       clearInterval(timer);
+      clearqrURL(doc);
+
       console.log('ending qr loop');
     }
   }, updateInterval * 1000);
-
 }
 
 function updateqrURL(doc, timer) {
@@ -31,20 +32,32 @@ function updateqrURL(doc, timer) {
     .then(url => {
       // update DB
       doc.update({QRcode: url})
-        .then(()=>{
-          return null;
+        .then(doc=>{
+          console.log(doc);
         })
         .catch(err => {
           clearInterval(timer);
+          clearqrURL(doc);
+          
           console.log('ending qr loop');
           console.log(err);
         });
     })
     .catch(err => {
       clearInterval(timer);
+      clearqrURL(doc);
+
       console.log('ending qr loop');
       console.log(err);
     })
+}
+
+function clearqrURL(doc) {
+  console.log('nulling qr field');
+
+  doc.update({QRcode: null})
+    .then(console.log)
+    .catch(console.log);
 }
 
 function CountDownTimer(minutes) {
