@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
-const admin = require('firebase-admin');
 const bcrypt = require('bcrypt');
 const sgMail = require('@sendgrid/mail');
-const serviceaccount = require('../config/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1');
+const db = require('./db');
+const qrloop = require('./qr/qrloop');
 
 
 const {
@@ -13,12 +13,6 @@ const {
 
 
 sgMail.setApiKey(process.env['sendgrid']);
-admin.initializeApp ({
-    credential: admin.credential.cert(serviceaccount),
-    databaseURL: "https://skindoc-10ef5.firebaseio.com"
-});
-
-let db = admin.firestore();
 
 
 // Query Resolvers
@@ -37,7 +31,7 @@ const findUser = (root, something)=>{
     let {email} = decoded;
     return db.collection("users").doc(email).get()
       .then((doc) => {
-        if(!doc.exists){
+        if(!doc.exists) {
           return{
             flag: false,
             user: null,
@@ -61,7 +55,7 @@ const findUser = (root, something)=>{
 const getUserFeed = (_, params) =>{
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
-    if(err){
+    if(err) {
       let message = formatErrors(err);
       return {
         flag: false,
@@ -69,6 +63,7 @@ const getUserFeed = (_, params) =>{
         errors: message
       }
     }
+
     let Query = db.collection('fests').where('isActive', '==', true);
     let docList = [];
     return Query.get()
@@ -278,7 +273,7 @@ const toggleFest = (root, params) => {
   })
 };
 
-const EnableQr = (root, params) => {
+const enableQr = (root, params) => {
   // params.timelimit
   // params.ID
   let {token} = params.viewer;
@@ -291,17 +286,27 @@ const EnableQr = (root, params) => {
       }
     }
     // return type { flag: <bool>, errors: null or appropriate message }
-    let query = db.collection('fests').doc(params.ID);
-    //loop update
-    return query.update({QRCODE: "place qr code here"})
-      .then(()=>{
+    // let query = db.collection('fests').doc(params.ID);
+    // //loop update
+    // return query.update({QRCODE: "place qr code here"})
+    //   .then(() => {
+    //     return {
+    //       flag: true,
+    //       status: 'qrcode generation initiated'
+    //     }
+    //   }).catch(err => {
+    //     return {
+    //       flag: false,
+    //       errors: err.message
+    //     }
+    // })
+    qrloop(params.ID, params.timelimit, 5);
 
-      }).catch(err =>{
-        return {
-          flag: false,
-          errors: err.message
-        }
-    })
+    return {
+      flag: false,
+      status: 'qrcode generation initiated'
+    }
+
   })
 };
 
@@ -311,5 +316,6 @@ module.exports = {
   createUser: createUser,
   authenticate: authenticate,
   createFest: createFest,
-  toggleFest: toggleFest
+  toggleFest: toggleFest,
+  enableQr: enableQr
 };
