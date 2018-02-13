@@ -7,15 +7,13 @@ function getQR(value) {
   return QRcode.toDataURL(value);
 }
 
-// TODO error handling
-
 function qrLoop(festID, timelimit, updateInterval) {
   let doc = db.collection('fests').doc(festID);
   let ct = new CountDownTimer(timelimit);
 
   let timer = setInterval(() => {
     if (!ct.isTimeUp()) {
-      updateqrURL(doc);
+      updateqrURL(doc, timer);  // I HATE YOU JS!!!
       console.log('starting qr loop');
     }
     else {
@@ -23,20 +21,30 @@ function qrLoop(festID, timelimit, updateInterval) {
       console.log('ending qr loop');
     }
   }, updateInterval * 1000);
+
 }
 
-function updateqrURL(doc) {
+function updateqrURL(doc, timer) {
   let id = crypto.randomBytes(16).toString('hex');
 
-  getQR(id)
+  return getQR(id)
     .then(url => {
       // update DB
       doc.update({QRcode: url})
-        .then(console.log)
-        .catch(err => console.log(err))
-
+        .then(()=>{
+          return null;
+        })
+        .catch(err => {
+          clearInterval(timer);
+          console.log('ending qr loop');
+          console.log(err);
+        });
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      clearInterval(timer);
+      console.log('ending qr loop');
+      console.log(err);
+    })
 }
 
 function CountDownTimer(minutes) {
