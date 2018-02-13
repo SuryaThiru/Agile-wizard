@@ -2,11 +2,6 @@ const QRcode = require('qrcode');
 const crypto = require('crypto');
 const db = require('../db');
 
-function getQR(value) {
-  // returns a promise that resolves to a data url
-  return QRcode.toDataURL(value);
-}
-
 function qrLoop(festID, timelimit, updateInterval) {
   let doc = db.collection('fests').doc(festID);
   let ct = new CountDownTimer(timelimit);
@@ -32,13 +27,13 @@ function updateqrURL(doc, timer) {
     .then(url => {
       // update DB
       doc.update({QRcode: url})
-        .then(doc=>{
+        .then(doc => {
           console.log(doc);
         })
         .catch(err => {
           clearInterval(timer);
           clearqrURL(doc);
-          
+
           console.log('ending qr loop');
           console.log(err);
         });
@@ -60,6 +55,25 @@ function clearqrURL(doc) {
     .catch(console.log);
 }
 
+function updateAttendance(userDoc, festId, verificationCode) {
+  let festDoc = db.collection('fests').doc(festId);
+  festDoc.get()
+    .then(doc => {
+      if (doc.exists) {
+        if (doc.data().QRcode.code === verificationCode) {
+          console.log('attendance verification');
+          // TODO the actual functionality
+        }
+        else {
+          console.log('attendance not verified');
+        }
+      }
+      else {
+        console.log('Fest document does not exist');
+      }
+    })
+}
+
 function CountDownTimer(minutes) {
   // object to countdown minutes
   this.startTime = new Date(); // start on construction
@@ -70,6 +84,11 @@ function CountDownTimer(minutes) {
     let diff = (currentTime - this.startTime) / (1000 * 60);
     return diff > this.countFrom;
   }
+}
+
+function getQR(value) {
+  // returns a promise that resolves to a data url
+  return QRcode.toDataURL(value);
 }
 
 module.exports = qrLoop;
