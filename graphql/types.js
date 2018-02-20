@@ -49,7 +49,6 @@ let registerResponse = new GraphQLObjectType({
   name: 'registerResponse',
   fields:{
     flag: {type: GraphQLBoolean},
-    token: {type: GraphQLString},
     errors: {type: GraphQLString}
   }
 });

@@ -33,7 +33,8 @@ const {
   createFest,
   toggleFest,
   enableQr,
-  updateAttendance
+  updateAttendance,
+  verify
 } = require('./resolvers');
 
 let queryType = new GraphQLObjectType({
@@ -107,6 +108,13 @@ let mutationType = new GraphQLObjectType({
         code: {type: GraphQLString}
       },
       resolve: updateAttendance
+    },
+    verify:{
+      type: generalResponse,
+      args:{
+        viewer:{type: viewerInput}
+      },
+      resolve: verify
     }
   }
 });

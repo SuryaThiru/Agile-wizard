@@ -1,8 +1,8 @@
 const admin = require('firebase-admin');
-const serviceaccount = require('../config/skindoc-10ef5-firebase-adminsdk-hye37-c5e3f153c1');
+const serviceaccount = require('../config/lazarus-c11d5-firebase-adminsdk-r6g6o-0977b50984.json');
 admin.initializeApp ({
   credential: admin.credential.cert(serviceaccount),
-  databaseURL: "https://skindoc-10ef5.firebaseio.com"
+  databaseURL: "https://lazarus-c11d5.firebaseio.com"
 });
 
 let db = admin.firestore();

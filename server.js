@@ -1,7 +1,7 @@
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-
+const cors = require('cors');
 
 const graphqlHTTP = require('express-graphql');
 const {schema} = require('./graphql/schema');
@@ -11,6 +11,7 @@ let app = express();
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
 
 app.use('/', graphqlHTTP({
   schema: schema,

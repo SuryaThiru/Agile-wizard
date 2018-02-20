@@ -1,5 +1,12 @@
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+let htm = fs.readFileSync("../Other/template.html");
 
+const replaceString = (message) =>{
+  let data = String(htm);
+  data = data.replace('##emailid##',message.email).replace('##link##',message.link).replace('##name##',message.fname);
+  return data;
+};
 const test = (stuff)=>{
   return {
     flag: true,
@@ -8,13 +15,14 @@ const test = (stuff)=>{
   }
 };
 
-const constructMessage = (email) =>{
+const constructMessage = (email, message) =>{
+  let data = replaceString(message);
   return {
     to: email,
     from: 'onimusha702@gmail.com',
     subject: 'verification Mail',
     text: 'balls and balls',
-    html: '<strong>Insert Html here</strong>',
+    html: data,
   }
 };
 

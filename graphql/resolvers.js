@@ -103,18 +103,19 @@ const createUser = (root, params) => {
     if(!validate(params.input.email)){
         return {
             flag: false,
-            token: null,
             errors: "Invalid Email"
         }
     }
     params.input.password = bcrypt.hashSync(params.input.password, 10);
     let users = db.collection('users').doc(params.input.email);
     let userData = JSON.parse(JSON.stringify(params.input));
-
+    userData.isVerified = false;
     return users.create(userData)
         .then(() => {
-            // return test(params.input);
-            let construct = constructMessage(userData.email);
+            // return test(params.input)
+            let token = jwt.sign({email: userData.email}, 'emailSecret');
+            userData.link = "http://localhost:3000/?a="+token;
+            let construct = constructMessage(userData.email, userData);
             sgMail.send(construct)
                 .then(() => {
                     console.log('mail sent!');
@@ -122,20 +123,17 @@ const createUser = (root, params) => {
                 .catch(err => {
                     return{
                         flag: false,
-                        token: null,
                         errors: err.message
                     }
                 });
             return {
                 flag: true,
-                token: jwt.sign({email: userData.email}, 'secret'),
                 errors: null
             };
         })
         .catch((err) => {
             return {
                 flag: false,
-                token: null,
                 errors: formatErrors(err)
             }
         });
@@ -148,14 +146,21 @@ const authenticate = (root, params) => {
         if(!doc.exists) {
           return {
             flag: true,
-            errors: "Invalid username",
+            errors: "Invalid Username",
             user: null,
             token: null
           }
         }
         else {
           let dat = doc.data();
-          // compares password
+          if(!dat.isVerified){
+            return{
+              flag: false,
+              errors: "Email Not Verified",
+              user: null,
+              token: null
+            }
+          }
           return bcrypt.compare(password, dat.password)
             .then((res) => {
               if (res) {
@@ -288,12 +293,38 @@ const enableQr = (root, params) => {
     }
 
     qrloop(params.ID, params.timelimit, 5);
-
     return {
       flag: true,
       status: 'qrcode generation initiated'
     }
+  })
+};
 
+const verify = (root, params)=>{
+  let {token} = params.viewer;
+  return jwt.verify(token, 'emailSecret', (err, decoded) => {
+    if (err) {
+      console.log(err);
+      return {
+        flag: false,
+        errors: "Invalid token"
+      }
+    }
+    return db.collection('users').doc(decoded.email)
+      .update({isVerified: true})
+      .then(()=>{
+        return {
+          flag: true,
+          errors: null
+        }
+      }).catch(err => {
+      console.log(err);
+      console.log(err.code);
+      return{
+        flag: false,
+        errors: err.message
+      }
+    })
   })
 };
 
@@ -366,5 +397,6 @@ module.exports = {
   createFest: createFest,
   toggleFest: toggleFest,
   enableQr: enableQr,
-  updateAttendance: updateAttendance
+  updateAttendance: updateAttendance,
+  verify: verify
 };
