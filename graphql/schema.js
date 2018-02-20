@@ -32,7 +32,8 @@ const {
   authenticate,
   createFest,
   toggleFest,
-  enableQr
+  enableQr,
+  verify
 } = require('./resolvers');
 
 let queryType = new GraphQLObjectType({
@@ -97,6 +98,13 @@ let mutationType = new GraphQLObjectType({
         timelimit: {type: GraphQLInt}
       },
       resolve: enableQr
+    },
+    verify:{
+      type: generalResponse,
+      args:{
+        viewer:{type: viewerInput}
+      },
+      resolve: verify
     }
   }
 });
