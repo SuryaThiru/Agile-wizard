@@ -3,8 +3,7 @@ let {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLBoolean,
-  GraphQLList,
-  GraphQLInt
+  GraphQLList
 } = require('graphql');
 
 // Schema for Agile-wizard

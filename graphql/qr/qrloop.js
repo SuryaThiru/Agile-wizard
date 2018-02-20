@@ -2,11 +2,6 @@ const QRcode = require('qrcode');
 const crypto = require('crypto');
 const db = require('../db');
 
-function getQR(value) {
-  // returns a promise that resolves to a data url
-  return QRcode.toDataURL(value);
-}
-
 function qrLoop(festID, timelimit, updateInterval) {
   let doc = db.collection('fests').doc(festID);
   let ct = new CountDownTimer(timelimit);
@@ -18,10 +13,11 @@ function qrLoop(festID, timelimit, updateInterval) {
     }
     else {
       clearInterval(timer);
+      clearqrURL(doc);
+
       console.log('ending qr loop');
     }
   }, updateInterval * 1000);
-
 }
 
 function updateqrURL(doc, timer) {
@@ -30,21 +26,33 @@ function updateqrURL(doc, timer) {
   return getQR(id)
     .then(url => {
       // update DB
-      doc.update({QRcode: url})
-        .then(()=>{
-          return null;
+      doc.update({QRuri: url, QRval: id})
+        .then(doc => {
+          console.log(doc);
         })
         .catch(err => {
           clearInterval(timer);
+          clearqrURL(doc);
+
           console.log('ending qr loop');
           console.log(err);
         });
     })
     .catch(err => {
       clearInterval(timer);
+      clearqrURL(doc);
+
       console.log('ending qr loop');
       console.log(err);
     })
+}
+
+function clearqrURL(doc) {
+  console.log('nulling qr field');
+
+  doc.update({QRuri: null, QRval: null})
+    .then(console.log)
+    .catch(console.log);
 }
 
 function CountDownTimer(minutes) {
@@ -57,6 +65,11 @@ function CountDownTimer(minutes) {
     let diff = (currentTime - this.startTime) / (1000 * 60);
     return diff > this.countFrom;
   }
+}
+
+function getQR(value) {
+  // returns a promise that resolves to a data url
+  return QRcode.toDataURL(value);
 }
 
 module.exports = qrLoop;
