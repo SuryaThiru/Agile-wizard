@@ -8,7 +8,7 @@ function qrLoop(festID, timelimit, updateInterval) {
 
   let timer = setInterval(() => {
     if (!ct.isTimeUp()) {
-      updateqrURL(doc, timer);  // I HATE YOU JS!!!
+      updateqrURL(doc, timer, festID);  // I HATE YOU JS!!!
       console.log('starting qr loop');
     }
     else {
@@ -20,10 +20,13 @@ function qrLoop(festID, timelimit, updateInterval) {
   }, updateInterval * 1000);
 }
 
-function updateqrURL(doc, timer) {
-  let id = crypto.randomBytes(16).toString('hex');
-
-  return getQR(id)
+function updateqrURL(doc, timer, festID) {
+  let id = crypto.randomBytes(8).toString('hex');
+  let data = {
+    festID: festID,
+    id: id
+  };
+  return getQR(JSON.stringify(data))
     .then(url => {
       // update DB
       doc.update({QRuri: url, QRval: id})
@@ -33,7 +36,6 @@ function updateqrURL(doc, timer) {
         .catch(err => {
           clearInterval(timer);
           clearqrURL(doc);
-
           console.log('ending qr loop');
           console.log(err);
         });

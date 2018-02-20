@@ -114,7 +114,7 @@ const createUser = (root, params) => {
         .then(() => {
             // return test(params.input)
             let token = jwt.sign({email: userData.email}, 'emailSecret');
-            userData.link = "http://localhost:3000/?a="+token;
+            userData.link = "http://localhost:3000/verify/"+token;
             let construct = constructMessage(userData.email, userData);
             sgMail.send(construct)
                 .then(() => {
@@ -291,7 +291,6 @@ const enableQr = (root, params) => {
         errors: "Invalid token"
       }
     }
-
     qrloop(params.ID, params.timelimit, 5);
     return {
       flag: true,
@@ -330,62 +329,114 @@ const verify = (root, params)=>{
 
 // function updateAttendance(userDoc, festId, verificationCode) {
 function updateAttendance(root, params) {
-  let userDoc = db.collection('users').doc(params.user_email);
+  // let userDoc = db.collection('users').doc(params.user_email);
   let festDoc = db.collection('fests').doc(params.festID);
-  let verificationCode = params.code;
-
-  return Promise.all([userDoc.get(), festDoc.get()])
-    .then(vals => {
-      let userData = vals[0];
-      let festData = vals[1];
-
-      if (!userData.exists) {
-        return {
-          flag: false,
-          errors: "user not found"
-        }
+  // let verificationCode = params.code;
+  let {token} = params.viewer;
+  return jwt.verify(token, 'secret', (err, decoded) => {
+    if(err){
+      return{
+        flag:false,
+        errors: 'Invalid token'
       }
-      else if (!festData.exists) {
-        return {
-          flag: false,
-          errors: "fest not found"
+    }
+    return festDoc.get()
+      .then((doc)=>{
+        if(!doc.exists){
+          return {
+            flag: false,
+            errors: null
+          }
         }
-      }
 
-      // verify with qr value in the DB
-      if (verificationCode === festData.data().QRval) {
-        // TODO update attendance better to the list
         let record = {
-          email: params.user_email,
+          email: decoded.email,
           timestamp: Math.floor(new Date() / 1000)  // UNIX epoch
-        };
-        let records = festData.data().attendance;
-        records.push(record);
-
-        festDoc.set(
-          {attendance: records},
-          {merge: true}
-        );
-      }
-      else {
-        return {
-          flag: false,
-          errors: 'invalid verification code'
+          };
+        console.log(record);
+        let dat = doc.data();
+        console.log(dat.QRval);
+        if(dat.QRval === params.code){
+          let records = dat.attendance;
+            records.push(record);
+            return festDoc.set({attendance: records}, {merge: true})
+              .then(()=>{
+                return {
+                  flag: true,
+                  errors: null
+                }
+              }).catch(err => {
+                return{
+                  flag: false,
+                  errors: err.message
+                }
+              });
         }
-      }
-
-      return {
-        flag: true,
-        errors: 'attendance updated'
-      }
-    })
-    .catch(err => {
-      console.log(err);
-
-      return {
-        flag: false,
-        errors: err
-      }
+        else{
+          return{
+            flag: false,
+            errors: 'Invalid Verification Code'
+          }
+        }
+      }).catch(err => {
+        return{
+          flag: false,
+          errors: err.message
+        }
+      });
+  // return Promise.all([userDoc.get(), festDoc.get()])
+  //   .then(vals => {
+  //     let userData = vals[0];
+  //     let festData = vals[1];
+  //
+  //     if (!userData.exists) {
+  //       return {
+  //         flag: false,
+  //         errors: "user not found"
+  //       }
+  //     }
+  //     else if (!festData.exists) {
+  //       return {
+  //         flag: false,
+  //         errors: "fest not found"
+  //       }
+  //     }
+  //
+  //     // verify with qr value in the DB
+  //     if (verificationCode === festData.data().QRval) {
+  //       // TODO update attendance better to the list
+  //       let record = {
+  //         email: params.user_email,
+  //         timestamp: Math.floor(new Date() / 1000)  // UNIX epoch
+  //       };
+  //       let records = festData.data().attendance;
+  //       records.push(record);
+  //
+  //       festDoc.set(
+  //         {attendance: records},
+  //         {merge: true}
+  //       );
+  //     }
+  //     else {
+  //       return {
+  //         flag: false,
+  //         errors: 'invalid verification code'
+  //       }
+  //     }
+  //
+  //     return {
+  //       flag: true,
+  //       errors: 'attendance updated'
+  //     }
+  //   })
+  //   .catch(err => {
+  //     console.log(err);
+  //
+  //     return {
+  //       flag: false,
+  //       errors: err
+  //     }
+  //   });
     });
 }
 

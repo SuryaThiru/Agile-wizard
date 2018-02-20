@@ -57,6 +57,7 @@ let queryType = new GraphQLObjectType({
   }
 });
 
+
 let mutationType = new GraphQLObjectType({
   name:'Mutation',
   fields:{
@@ -103,9 +104,9 @@ let mutationType = new GraphQLObjectType({
     updateAttendance: {
       type: generalResponse,
       args: {
-        user_email: {type: GraphQLString},
         festID: {type: GraphQLString},
-        code: {type: GraphQLString}
+        viewer:{type: viewerInput},
+        code:{type: GraphQLString}
       },
       resolve: updateAttendance
     },

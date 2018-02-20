@@ -20,7 +20,7 @@ const constructMessage = (email, message) =>{
   return {
     to: email,
     from: 'onimusha702@gmail.com',
-    subject: 'verification Mail',
+    subject: 'Verify your account',
     text: 'balls and balls',
     html: data,
   }
