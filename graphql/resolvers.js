@@ -98,7 +98,6 @@ const getUserFeed = (_, params) =>{
   })
 };
 
-
 // Mutation Resolvers
 const createUser = (root, params) => {
     if(!validate(params.input.email)){
@@ -197,6 +196,7 @@ const authenticate = (root, params) => {
 
 const createFest = (root, params) => {
   let {token} = params.viewer;
+
   return jwt.verify(token, 'secret', (err, decoded) => {
     if (err) {
       let message = formatErrors(err);
@@ -206,8 +206,10 @@ const createFest = (root, params) => {
         fest: null
       }
     }
+
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
+
     return query.create(festData)
       .then(()=>{
         let doc = festData;
@@ -239,6 +241,7 @@ const toggleFest = (root, params) => {
         errors: "Invalid token"
       }
     }
+
     let query = db.collection('fests').doc(params.ID);
     return query.get()
       .then((doc)=>{
@@ -274,8 +277,6 @@ const toggleFest = (root, params) => {
 };
 
 const enableQr = (root, params) => {
-  // params.timelimit
-  // params.ID
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
     if (err) {
@@ -285,30 +286,77 @@ const enableQr = (root, params) => {
         errors: "Invalid token"
       }
     }
-    // return type { flag: <bool>, errors: null or appropriate message }
-    // let query = db.collection('fests').doc(params.ID);
-    // //loop update
-    // return query.update({QRCODE: "place qr code here"})
-    //   .then(() => {
-    //     return {
-    //       flag: true,
-    //       status: 'qrcode generation initiated'
-    //     }
-    //   }).catch(err => {
-    //     return {
-    //       flag: false,
-    //       errors: err.message
-    //     }
-    // })
+
     qrloop(params.ID, params.timelimit, 5);
 
     return {
-      flag: false,
+      flag: true,
       status: 'qrcode generation initiated'
     }
 
   })
 };
+
+// function updateAttendance(userDoc, festId, verificationCode) {
+function updateAttendance(root, params) {
+  let userDoc = db.collection('users').doc(params.user_email);
+  let festDoc = db.collection('fests').doc(params.festID);
+  let verificationCode = params.code;
+
+  return Promise.all([userDoc.get(), festDoc.get()])
+    .then(vals => {
+      let userData = vals[0];
+      let festData = vals[1];
+
+      if (!userData.exists) {
+        return {
+          flag: false,
+          errors: "user not found"
+        }
+      }
+      else if (!festData.exists) {
+        return {
+          flag: false,
+          errors: "fest not found"
+        }
+      }
+
+      // verify with qr value in the DB
+      if (verificationCode === festData.data().QRval) {
+        // TODO update attendance better to the list
+        let record = {
+          email: params.user_email,
+          timestamp: Math.floor(new Date() / 1000)  // UNIX epoch
+        };
+        let records = festData.data().attendance;
+        records.push(record);
+
+        festDoc.set(
+          {attendance: records},
+          {merge: true}
+        );
+      }
+      else {
+        return {
+          flag: false,
+          errors: 'invalid verification code'
+        }
+      }
+
+      return {
+        flag: true,
+        errors: 'attendance updated'
+      }
+    })
+    .catch(err => {
+      console.log(err);
+
+      return {
+        flag: false,
+        errors: err
+      }
+    });
+}
 
 module.exports = {
   findUser: findUser,
@@ -317,5 +365,6 @@ module.exports = {
   authenticate: authenticate,
   createFest: createFest,
   toggleFest: toggleFest,
-  enableQr: enableQr
+  enableQr: enableQr,
+  updateAttendance: updateAttendance
 };

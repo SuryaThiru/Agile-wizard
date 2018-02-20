@@ -32,7 +32,8 @@ const {
   authenticate,
   createFest,
   toggleFest,
-  enableQr
+  enableQr,
+  updateAttendance
 } = require('./resolvers');
 
 let queryType = new GraphQLObjectType({
@@ -89,7 +90,7 @@ let mutationType = new GraphQLObjectType({
       },
       resolve: toggleFest
     },
-    EnableQr:{
+    enableQr:{
       type: generalResponse,
       args:{
         ID: {type: GraphQLString},
@@ -97,6 +98,15 @@ let mutationType = new GraphQLObjectType({
         timelimit: {type: GraphQLInt}
       },
       resolve: enableQr
+    },
+    updateAttendance: {
+      type: generalResponse,
+      args: {
+        user_email: {type: GraphQLString},
+        festID: {type: GraphQLString},
+        code: {type: GraphQLString}
+      },
+      resolve: updateAttendance
     }
   }
 });

@@ -26,7 +26,7 @@ function updateqrURL(doc, timer) {
   return getQR(id)
     .then(url => {
       // update DB
-      doc.update({QRcode: url})
+      doc.update({QRuri: url, QRval: id})
         .then(doc => {
           console.log(doc);
         })
@@ -50,28 +50,9 @@ function updateqrURL(doc, timer) {
 function clearqrURL(doc) {
   console.log('nulling qr field');
 
-  doc.update({QRcode: null})
+  doc.update({QRuri: null, QRval: null})
     .then(console.log)
     .catch(console.log);
-}
-
-function updateAttendance(userDoc, festId, verificationCode) {
-  let festDoc = db.collection('fests').doc(festId);
-  festDoc.get()
-    .then(doc => {
-      if (doc.exists) {
-        if (doc.data().QRcode.code === verificationCode) {
-          console.log('attendance verification');
-          // TODO the actual functionality
-        }
-        else {
-          console.log('attendance not verified');
-        }
-      }
-      else {
-        console.log('Fest document does not exist');
-      }
-    })
 }
 
 function CountDownTimer(minutes) {
