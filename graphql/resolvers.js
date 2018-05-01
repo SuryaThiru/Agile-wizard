@@ -1,18 +1,12 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const sgMail = require('@sendgrid/mail');
-const db = require('./db');
-const qrloop = require('./qr/qrloop');
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import sgMail from "@sendgrid/mail";
+import db from "./db";
+import qrloop from "./qr/qrloop";
+import {constructMessage, formatErrors, validate} from "./utils";
 
 
-const {
-  formatErrors,
-  constructMessage,
-  validate
-} = require('./utils');
-
-
-sgMail.setApiKey(process.env['sendgrid']);
+sgMail.setApiKey(process.env.sendgrid);
 
 
 // Query Resolvers
@@ -25,7 +19,7 @@ const findUser = (root, something)=>{
           flag: false,
           user: null,
           errors: message
-        }
+        };
     }
 
     let {email} = decoded;
@@ -36,7 +30,7 @@ const findUser = (root, something)=>{
             flag: false,
             user: null,
             errors: "user does not exist"
-          }
+          };
         }
         else{
           console.log(doc.data());
@@ -47,12 +41,12 @@ const findUser = (root, something)=>{
         flag: true,
         user: dat,
         errors: null
-      }
+      };
     });
   });
 };
 
-const getUserFeed = (_, params) =>{
+const getUserFeed = (_, params) => {
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
     if(err) {
@@ -61,7 +55,7 @@ const getUserFeed = (_, params) =>{
         flag: false,
         user: null,
         errors: message
-      }
+      };
     }
 
     let Query = db.collection('fests').where('isActive', '==', true);
@@ -74,7 +68,7 @@ const getUserFeed = (_, params) =>{
             flag: false,
             errors: 'No events currently.',
             feed: null
-          }
+          };
         }
         else {
           snapshot.forEach(doc => {
@@ -86,16 +80,16 @@ const getUserFeed = (_, params) =>{
             flag: true,
             errors: null,
             feed: docList
-          }
+          };
         }
       }).catch(err => {
         return {
           flag: false,
           errors: err.message,
           feed: null
-        }
-      })
-  })
+        };
+      });
+  });
 };
 
 // Mutation Resolvers
@@ -104,7 +98,7 @@ const createUser = (root, params) => {
         return {
             flag: false,
             errors: "Invalid Email"
-        }
+        };
     }
     params.input.password = bcrypt.hashSync(params.input.password, 10);
     let users = db.collection('users').doc(params.input.email);
@@ -124,7 +118,7 @@ const createUser = (root, params) => {
                     return{
                         flag: false,
                         errors: err.message
-                    }
+                    };
                 });
             return {
                 flag: true,
@@ -135,7 +129,7 @@ const createUser = (root, params) => {
             return {
                 flag: false,
                 errors: formatErrors(err)
-            }
+            };
         });
 };
 
@@ -149,7 +143,7 @@ const authenticate = (root, params) => {
             errors: "Invalid Username",
             user: null,
             token: null
-          }
+          };
         }
         else {
           let dat = doc.data();
@@ -159,7 +153,7 @@ const authenticate = (root, params) => {
               errors: "Email Not Verified",
               user: null,
               token: null
-            }
+            };
           }
           return bcrypt.compare(password, dat.password)
             .then((res) => {
@@ -169,7 +163,7 @@ const authenticate = (root, params) => {
                 errors: null,
                 user: dat,
                 token: jwt.sign({email: email}, 'secret')
-                }
+                };
               }
               else {
                 return {
@@ -177,7 +171,7 @@ const authenticate = (root, params) => {
                   errors: "Invalid Password.",
                   user: dat,
                   token: null
-                }
+                };
               }
             })
             .then(dat => {
@@ -190,7 +184,7 @@ const authenticate = (root, params) => {
                 errors: err.message,
                 user: null,
                 token: null
-              }
+              };
             });
         }
       })
@@ -209,7 +203,7 @@ const createFest = (root, params) => {
         flag: false,
         errors: message,
         fest: null
-      }
+      };
     }
 
     let festData = JSON.parse(JSON.stringify(params.festInput));
@@ -223,7 +217,7 @@ const createFest = (root, params) => {
           flag: true,
           errors: null,
           fest: doc
-        }
+        };
       }).catch((err)=>{
         console.log("LOG THIS CREATEFEST" + err);
         let message = formatErrors(err);
@@ -231,9 +225,9 @@ const createFest = (root, params) => {
           flag: false,
           errors: message,
           fest: null
-        }
-      })
-  })
+        };
+      });
+  });
 };
 
 const toggleFest = (root, params) => {
@@ -244,7 +238,7 @@ const toggleFest = (root, params) => {
       return{
         flag: false,
         errors: "Invalid token"
-      }
+      };
     }
 
     let query = db.collection('fests').doc(params.ID);
@@ -254,7 +248,7 @@ const toggleFest = (root, params) => {
           return{
             flag: false,
             errors: "Invalid ID."
-          }
+          };
         }
 
         let docZ = doc.data();
@@ -263,22 +257,22 @@ const toggleFest = (root, params) => {
             return {
               flag: true,
               errors: null
-            }
+            };
           }).catch(err => {
             console.log(err);
             console.log(err.code);
             return{
               flag: false,
               errors: err.message
-            }
-        })
+            };
+        });
       }).catch(err => {
         return{
           flag: false,
           errors: err.message
-        }
-    })
-  })
+        };
+    });
+  });
 };
 
 const enableQr = (root, params) => {
@@ -289,14 +283,14 @@ const enableQr = (root, params) => {
       return {
         flag: false,
         errors: "Invalid token"
-      }
+      };
     }
     qrloop(params.ID, params.timelimit, 5);
     return {
       flag: true,
       status: 'qrcode generation initiated'
-    }
-  })
+    };
+  });
 };
 
 const verify = (root, params)=>{
@@ -307,7 +301,7 @@ const verify = (root, params)=>{
       return {
         flag: false,
         errors: "Invalid token"
-      }
+      };
     }
     return db.collection('users').doc(decoded.email)
       .update({isVerified: true})
@@ -315,16 +309,16 @@ const verify = (root, params)=>{
         return {
           flag: true,
           errors: null
-        }
+        };
       }).catch(err => {
       console.log(err);
       console.log(err.code);
       return{
         flag: false,
         errors: err.message
-      }
-    })
-  })
+      };
+    });
+  });
 };
 
 // function updateAttendance(userDoc, festId, verificationCode) {
@@ -338,7 +332,7 @@ function updateAttendance(root, params) {
       return{
         flag:false,
         errors: 'Invalid token'
-      }
+      };
     }
     return festDoc.get()
       .then((doc)=>{
@@ -346,7 +340,7 @@ function updateAttendance(root, params) {
           return {
             flag: false,
             errors: null
-          }
+          };
         }
 
         let record = {
@@ -360,29 +354,29 @@ function updateAttendance(root, params) {
           let records = dat.attendance;
             records.push(record);
             return festDoc.set({attendance: records}, {merge: true})
-              .then(()=>{
+              .then(() => {
                 return {
                   flag: true,
                   errors: null
-                }
+                };
               }).catch(err => {
-                return{
+                return {
                   flag: false,
                   errors: err.message
-                }
+                };
               });
         }
-        else{
-          return{
+        else {
+          return {
             flag: false,
             errors: 'Invalid Verification Code'
-          }
+          };
         }
       }).catch(err => {
-        return{
+        return {
           flag: false,
           errors: err.message
-        }
+        };
       });
   // return Promise.all([userDoc.get(), festDoc.get()])
   //   .then(vals => {
@@ -440,7 +434,7 @@ function updateAttendance(root, params) {
     });
 }
 
-module.exports = {
+export default {
   findUser: findUser,
   getFeed: getUserFeed,
   createUser: createUser,

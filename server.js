@@ -1,10 +1,10 @@
-const express = require('express');
-const logger = require('morgan');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+import cors from "cors";
+import express from "express";
+import logger from "morgan";
+import bodyParser from "body-parser";
+import graphqlHTTP from "express-graphql";
+import {schema} from "./graphql/schema";
 
-const graphqlHTTP = require('express-graphql');
-const {schema} = require('./graphql/schema');
 
 let app = express();
 
@@ -26,7 +26,7 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -38,4 +38,4 @@ app.use(function(err, req, res, next) {
   });
 });
 
-module.exports = app;
+export default app;

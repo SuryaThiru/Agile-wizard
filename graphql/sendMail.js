@@ -1,14 +1,16 @@
 // using SendGrid's v3 Node.js Library
 // https://github.com/sendgrid/sendgrid-nodejs
-const sgMail = require('@sendgrid/mail');
-console.log(process.env['sendgrid']);
-sgMail.setApiKey(process.env['sendgrid']);
+import sgMail from "@sendgrid/mail";
+
+console.log(process.env.sendgrid);
+sgMail.setApiKey(process.env.sendgrid);
+
 const msg = {
-    to: 'amrut546@gmail.com',
-    from: 'onimusha702@gmail.com',
-    subject: 'Hey buddy!',
-    text: 'why is this not working',
-    html: '<strong>hola amigo i am just testing this out</strong>',
+  to: 'amrut546@gmail.com',
+  from: 'onimusha702@gmail.com',
+  subject: 'Hey buddy!',
+  text: 'why is this not working',
+  html: '<strong>hola amigo i am just testing this out</strong>',
 };
 // expects the message to be in the following format
 // msg{

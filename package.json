@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node bin/www",
     "debug": "nodemon bin/www",
+    "lint": "jshint . --config .jshintrc",
     "test": "mocha"
   },
   "repository": {

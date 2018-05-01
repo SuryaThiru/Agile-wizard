@@ -1,0 +1,20 @@
+{
+	"noempty": true,
+	"undef": true,
+	"unused": true,
+	"indent": 2,
+	"newcap": true,
+	"esversion": 6,
+	"lastsemic": true,
+	"maxlen": 80,
+	"trailing": true,
+	"varstmt": true,
+	"devel": true,
+	
+
+	"globals": {
+		"node": true,
+		"mocha": true,
+		"browser": false
+	}
+}

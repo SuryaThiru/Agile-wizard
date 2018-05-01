@@ -1,6 +1,6 @@
-const QRcode = require('qrcode');
-const crypto = require('crypto');
-const db = require('../db');
+import QRcode from "qrcode";
+import crypto from "crypto";
+import db from "../db";
 
 function qrLoop(festID, timelimit, updateInterval) {
   let doc = db.collection('fests').doc(festID);
@@ -46,7 +46,7 @@ function updateqrURL(doc, timer, festID) {
 
       console.log('ending qr loop');
       console.log(err);
-    })
+    });
 }
 
 function clearqrURL(doc) {
@@ -66,7 +66,7 @@ function CountDownTimer(minutes) {
     let currentTime = new Date();
     let diff = (currentTime - this.startTime) / (1000 * 60);
     return diff > this.countFrom;
-  }
+  };
 }
 
 function getQR(value) {
@@ -74,4 +74,4 @@ function getQR(value) {
   return QRcode.toDataURL(value);
 }
 
-module.exports = qrLoop;
+export default qrLoop;

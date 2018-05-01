@@ -1,18 +1,21 @@
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
+import jwt from "jsonwebtoken";
+import fs from "fs";
+
 let htm = fs.readFileSync("../Other/template.html");
 
 const replaceString = (message) =>{
   let data = String(htm);
-  data = data.replace('##emailid##',message.email).replace('##link##',message.link).replace('##name##',message.fname);
+  data = data.replace('##emailid##',message.email)
+    .replace('##link##',message.link).replace('##name##',message.fname);
   return data;
 };
+
 const test = (stuff)=>{
   return {
     flag: true,
     errors: null,
-    token: jwt.sign({email: stuff.email}, process.env['jwt_secret'])
-  }
+    token: jwt.sign({email: stuff.email}, process.env.jwt_secret)
+  };
 };
 
 const constructMessage = (email, message) =>{
@@ -23,7 +26,7 @@ const constructMessage = (email, message) =>{
     subject: 'Verify your account',
     text: 'balls and balls',
     html: data,
-  }
+  };
 };
 
 const formatErrors = (e) => {
@@ -43,7 +46,7 @@ const validate =  (email)=>{
 };
 
 
-module.exports = {
+export default {
   test: test,
   formatErrors: formatErrors,
   constructMessage: constructMessage,

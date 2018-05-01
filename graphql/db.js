@@ -1,5 +1,6 @@
-const admin = require('firebase-admin');
-const serviceaccount = require('../config/lazarus-c11d5-firebase-adminsdk-r6g6o-0977b50984');
+import admin from "firebase-admin";
+import serviceaccount
+  from "../config/lazarus-c11d5-firebase-adminsdk-r6g6o-0977b50984";
 
 admin.initializeApp ({
   credential: admin.credential.cert(serviceaccount),
@@ -8,4 +9,4 @@ admin.initializeApp ({
 
 let db = admin.firestore();
 
-module.exports = db;
+export default db;

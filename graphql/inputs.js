@@ -1,10 +1,10 @@
-let {
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLInputObjectType,
+import {
   GraphQLBoolean,
-  GraphQLList
-} = require('graphql');
+  GraphQLInputObjectType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLString
+} from "graphql";
 
 
 let userInput = new GraphQLInputObjectType({
@@ -28,7 +28,6 @@ let viewerInput = new GraphQLInputObjectType({
   }
 });
 
-
 // Carpenter's input createFest
 let festInput = new GraphQLInputObjectType({
     name: 'festInput',
@@ -47,7 +46,7 @@ let festInput = new GraphQLInputObjectType({
     }
 });
 
-module.exports = {
+export default {
   userInput: userInput,
   viewerInput: viewerInput,
   festInput: festInput
