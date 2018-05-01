@@ -1,6 +1,6 @@
 // using SendGrid's v3 Node.js Library
 // https://github.com/sendgrid/sendgrid-nodejs
-import sgMail from "@sendgrid/mail";
+const sgMail = require('@sendgrid/mail');
 
 console.log(process.env.sendgrid);
 sgMail.setApiKey(process.env.sendgrid);

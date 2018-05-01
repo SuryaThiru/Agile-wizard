@@ -1,6 +1,6 @@
-import QRcode from "qrcode";
-import crypto from "crypto";
-import db from "../db";
+const QRcode = require('qrcode');
+const crypto = require('crypto');
+const db = require('../db');
 
 function qrLoop(festID, timelimit, updateInterval) {
   let doc = db.collection('fests').doc(festID);
@@ -74,4 +74,4 @@ function getQR(value) {
   return QRcode.toDataURL(value);
 }
 
-export default qrLoop;
+module.exports = qrLoop;

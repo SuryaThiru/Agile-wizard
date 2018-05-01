@@ -1,11 +1,9 @@
-import {
-  GraphQLBoolean,
-  GraphQLList,
-  GraphQLNonNull,
+let {
+  GraphQLString,
   GraphQLObjectType,
-  GraphQLString
-} from "graphql";
-
+  GraphQLNonNull,
+  GraphQLList
+} = require('graphql');
 
 // Schema for Agile-wizard
 
@@ -125,7 +123,7 @@ let festResponse = new GraphQLObjectType({
   }
 });
 
-export default {
+module.exports = {
   registerResponse: registerResponse,
   queryResponse: queryResponse,
   authResponse: authResponse,

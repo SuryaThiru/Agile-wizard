@@ -3,38 +3,39 @@
   exports a GraphQLSchema
  */
 
-import {
-  GraphQLInt,
-  GraphQLObjectType,
+const {
+  GraphQLString,
   GraphQLSchema,
-  GraphQLString
-} from "graphql";
+  GraphQLObjectType,
+  GraphQLInt
+} = require('graphql');
 
-import {
+const {
+  registerResponse,
   authResponse,
-  feedResponse,
-  festResponse,
-  generalResponse,
   queryResponse,
-  registerResponse
-} from "./types";
+  feedResponse,
+  generalResponse,
+  festResponse
+} = require('./types');
 
-import {
-  festInput,
+const {
   userInput,
-  viewerInput
-} from "./inputs";
+  viewerInput,
+  festInput
+} = require('./inputs');
 
-import {
-  authenticate,
-  createFest,
-  createUser,
-  enableQr,
+const {
   findUser,
   getFeed,
+  createUser,
+  authenticate,
+  createFest,
   toggleFest,
-  updateAttendance, verify
-} from "./resolvers";
+  enableQr,
+  updateAttendance,
+  verify
+} = require('./resolvers');
 
 
 let queryType = new GraphQLObjectType({
@@ -125,4 +126,4 @@ const schema = new GraphQLSchema({
   mutation: mutationType
 });
 
-export {schema};
+module.exports.schema = schema;

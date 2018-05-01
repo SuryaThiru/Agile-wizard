@@ -1,9 +1,9 @@
-import cors from "cors";
-import express from "express";
-import logger from "morgan";
-import bodyParser from "body-parser";
-import graphqlHTTP from "express-graphql";
-import {schema} from "./graphql/schema";
+const express = require('express');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const graphqlHTTP = require('express-graphql');
+const {schema} = require('./graphql/schema');
 
 
 let app = express();
@@ -38,4 +38,4 @@ app.use(function(err, req, res) {
   });
 });
 
-export default app;
+module.exports = app;

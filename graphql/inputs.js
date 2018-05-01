@@ -1,10 +1,10 @@
-import {
-  GraphQLBoolean,
-  GraphQLInputObjectType,
-  GraphQLList,
+const {
+  GraphQLString,
   GraphQLNonNull,
-  GraphQLString
-} from "graphql";
+  GraphQLInputObjectType,
+  GraphQLBoolean,
+  GraphQLList
+} = require('graphql');
 
 
 let userInput = new GraphQLInputObjectType({
@@ -46,7 +46,7 @@ let festInput = new GraphQLInputObjectType({
     }
 });
 
-export default {
+module.exports = {
   userInput: userInput,
   viewerInput: viewerInput,
   festInput: festInput

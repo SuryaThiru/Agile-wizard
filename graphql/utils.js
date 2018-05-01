@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-import fs from "fs";
+const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 let htm = fs.readFileSync("../Other/template.html");
 
@@ -46,7 +46,7 @@ const validate =  (email)=>{
 };
 
 
-export default {
+module.exports = {
   test: test,
   formatErrors: formatErrors,
   constructMessage: constructMessage,

@@ -1,10 +1,14 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import sgMail from "@sendgrid/mail";
-import db from "./db";
-import qrloop from "./qr/qrloop";
-import {constructMessage, formatErrors, validate} from "./utils";
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const sgMail = require('@sendgrid/mail');
+const db = require('./db');
+const qrloop = require('./qr/qrloop');
 
+const {
+  formatErrors,
+  constructMessage,
+  validate
+} = require('./utils');
 
 sgMail.setApiKey(process.env.sendgrid);
 
@@ -434,7 +438,7 @@ function updateAttendance(root, params) {
     });
 }
 
-export default {
+module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
   createUser: createUser,
