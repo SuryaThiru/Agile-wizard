@@ -40,17 +40,17 @@ const {
 
 let queryType = new GraphQLObjectType({
   name: 'Query',
-  fields:{
-    findUser:{
+  fields: {
+    findUser: {
       type: queryResponse,
       args: {
         viewer: {type: viewerInput }
       },
       resolve: findUser
     },
-    getFeed:{
+    getFeed: {
       type: feedResponse,
-      args:{
+      args: {
         viewer: {type: viewerInput}
       },
       resolve: getFeed
@@ -61,7 +61,7 @@ let queryType = new GraphQLObjectType({
 
 let mutationType = new GraphQLObjectType({
   name:'Mutation',
-  fields:{
+  fields: {
     createUser: {
       type: registerResponse,
       args: {
@@ -69,33 +69,33 @@ let mutationType = new GraphQLObjectType({
       },
       resolve: createUser
     },
-    authenticate:{
+    authenticate: {
       type: authResponse,
-      args:{
+      args: {
         email: {type: GraphQLString},
         password: {type: GraphQLString}
       },
       resolve: authenticate
     },
-    createFest:{
+    createFest: {
       type: festResponse,
-      args:{
+      args: {
         viewer: {type: viewerInput},
         festInput: {type: festInput}
       },
       resolve: createFest
     },
-    toggleFest:{
+    toggleFest: {
       type: generalResponse,
-      args:{
+      args: {
         viewer: {type: viewerInput},
         ID: {type: GraphQLString}
       },
       resolve: toggleFest
     },
-    enableQr:{
+    enableQr: {
       type: generalResponse,
-      args:{
+      args: {
         ID: {type: GraphQLString},
         viewer:{type: viewerInput},
         timelimit: {type: GraphQLInt}
@@ -111,9 +111,9 @@ let mutationType = new GraphQLObjectType({
       },
       resolve: updateAttendance
     },
-    verify:{
+    verify: {
       type: generalResponse,
-      args:{
+      args: {
         viewer:{type: viewerInput}
       },
       resolve: verify

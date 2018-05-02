@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 
-let htm = fs.readFileSync("../Other/template.html");
+let htm = fs.readFileSync("graphql/views/template.html");
 
 const replaceString = (message) =>{
   let data = String(htm);
@@ -32,7 +32,7 @@ const constructMessage = (email, message) =>{
 const formatErrors = (e) => {
   console.log(e.code);
   if(e.name === 'JsonWebTokenError'){
-    return "token is Invalid";
+    return "Token is Invalid";
   }
   else if(e.code === 6){
     return "User Already exists";

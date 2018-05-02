@@ -14,8 +14,9 @@ sgMail.setApiKey(process.env.sendgrid);
 
 
 // Query Resolvers
-const findUser = (root, something)=>{
-  let {token} = something.viewer;
+const findUser = (root, params)=>{
+  console.log(params);
+  let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
     if(err) {
       let message = formatErrors(err);
@@ -50,7 +51,7 @@ const findUser = (root, something)=>{
   });
 };
 
-const getUserFeed = (_, params) => {
+const getUserFeed = (root, params) => {
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
     if(err) {
