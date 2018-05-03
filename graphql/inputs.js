@@ -41,7 +41,7 @@ let festInput = new GraphQLInputObjectType({
     link: {type: new GraphQLList(GraphQLString)},
     isActive: {type: GraphQLBoolean},
     RSVP: {type: new GraphQLList(GraphQLString)},
-    attendance : {type: new GraphQLNonNull(new GraphQLList(GraphQLString))},
+    attendance : {type: new GraphQLList(GraphQLString)},
     feedback: {type: new GraphQLList(GraphQLString)},
   }
 });
