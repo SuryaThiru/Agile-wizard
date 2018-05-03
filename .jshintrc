@@ -10,8 +10,7 @@
 	"trailing": true,
 	"varstmt": true,
 	"devel": true,
-	
-
+	"node": true,
 	"globals": {
 		"node": true,
 		"mocha": true,

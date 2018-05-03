@@ -1,73 +1,57 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const sgMail = require('@sendgrid/mail');
 const db = require('./db');
 const qrloop = require('./qr/qrloop');
+const sendSignUpVerification = require('./email/signup');
+const jwtwrapper = require('./jwtwrapper');
 
 const {
   formatErrors,
-  constructMessage,
   validate
 } = require('./utils');
 
-sgMail.setApiKey(process.env.sendgrid);
-
 
 // Query Resolvers
-const findUser = (root, something)=>{
-  let {token} = something.viewer;
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if(err) {
-      let message = formatErrors(err);
-        return {
-          flag: false,
-          user: null,
-          errors: message
-        };
-    }
+function findUser(root, params) {
+  let {token} = params.viewer;
 
+  return jwtwrapper(token, (decoded) => {
     let {email} = decoded;
+
     return db.collection("users").doc(email).get()
       .then((doc) => {
         if(!doc.exists) {
-          return{
+          return {
             flag: false,
             user: null,
             errors: "user does not exist"
           };
         }
-        else{
-          console.log(doc.data());
+        else {
+          // console.log(doc.data());
           return doc.data();
-        }
-    }).then((dat)=>{
-      return {
-        flag: true,
-        user: dat,
-        errors: null
-      };
+        }})
+      .then((dat)=>{
+        return {
+          flag: true,
+          user: dat,
+          errors: null
+        };
     });
   });
-};
+}
 
-const getUserFeed = (_, params) => {
+function getUserFeed(root, params) {
   let {token} = params.viewer;
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if(err) {
-      let message = formatErrors(err);
-      return {
-        flag: false,
-        user: null,
-        errors: message
-      };
-    }
 
+  return jwtwrapper(token, (decoded) => {
     let Query = db.collection('fests').where('isActive', '==', true);
     let docList = [];
+
     return Query.get()
       .then(snapshot => {
         if (snapshot.empty) {
-          console.log('empty');
+          console.log('no events');
           return {
             flag: false,
             errors: 'No events currently.',
@@ -80,6 +64,7 @@ const getUserFeed = (_, params) => {
             modifiedDoc.ID = doc.id;
             docList.push(modifiedDoc);
           });
+
           return {
             flag: true,
             errors: null,
@@ -97,119 +82,107 @@ const getUserFeed = (_, params) => {
 };
 
 // Mutation Resolvers
-const createUser = (root, params) => {
-    if(!validate(params.input.email)){
-        return {
-            flag: false,
-            errors: "Invalid Email"
-        };
-    }
-    params.input.password = bcrypt.hashSync(params.input.password, 10);
-    let users = db.collection('users').doc(params.input.email);
-    let userData = JSON.parse(JSON.stringify(params.input));
-    userData.isVerified = false;
-    return users.create(userData)
-        .then(() => {
-            // return test(params.input)
-            let token = jwt.sign({email: userData.email}, 'emailSecret');
-            userData.link = "http://localhost:3000/verify/"+token;
-            let construct = constructMessage(userData.email, userData);
-            sgMail.send(construct)
-                .then(() => {
-                    console.log('mail sent!');
-                })
-                .catch(err => {
-                    return{
-                        flag: false,
-                        errors: err.message
-                    };
-                });
-            return {
-                flag: true,
-                errors: null
-            };
-        })
-        .catch((err) => {
-            return {
-                flag: false,
-                errors: formatErrors(err)
-            };
-        });
-};
+function createUser(root, params) {
+  if(!validate(params.input.email)) {
+    return {
+      flag: false,
+      errors: "Invalid Email"
+    };
+  }
 
-const authenticate = (root, params) => {
+// TODO make async - optional
+  params.input.password = bcrypt.hashSync(params.input.password, 10);
+
+  let users = db.collection('users').doc(params.input.email);
+  let userData = JSON.parse(JSON.stringify(params.input));
+  userData.isVerified = false;
+
+  return users.create(userData)
+    .then(() => {
+      let token = jwt.sign({email: userData.email}, 'emailSecret');
+
+      sendSignUpVerification(userData, token);
+      // TODO email failed - delete created user?
+
+      return {
+        flag: true,
+        errors: null
+      };
+    })
+    .catch((err) => {
+      return {
+        flag: false,
+        errors: formatErrors(err)
+      };
+    });
+}
+
+function authenticate(root, params) {
   let {password, email} = params;
-    return db.collection("users").doc(email).get()
-      .then((doc)=>{
-        if(!doc.exists) {
-          return {
-            flag: true,
-            errors: "Invalid Username",
+
+  return db.collection("users").doc(email).get()
+    .then((doc)=>{
+      if(!doc.exists) {
+        return {
+          flag: true,
+          errors: "Invalid Username",
+          user: null,
+          token: null
+        };
+      }
+      else {
+        let dat = doc.data();
+        if(!dat.isVerified){
+          return{
+            flag: false,
+            errors: "Email Not Verified",
             user: null,
             token: null
           };
         }
-        else {
-          let dat = doc.data();
-          if(!dat.isVerified){
-            return{
+
+        return bcrypt.compare(password, dat.password)
+          .then((res) => {
+            if (res) {
+              return {
+              flag: true,
+              errors: null,
+              user: dat,
+              token: jwt.sign({email: email}, 'secret')
+              };
+            }
+            else {
+              return {
+                flag: false,
+                errors: "Invalid Password.",
+                user: dat,
+                token: null
+              };
+            }
+          })
+          .then(dat => {
+            console.log(dat);
+            return dat;
+          })
+          .catch(err => {
+            return {
               flag: false,
-              errors: "Email Not Verified",
+              errors: err.message,
               user: null,
               token: null
             };
-          }
-          return bcrypt.compare(password, dat.password)
-            .then((res) => {
-              if (res) {
-                return {
-                flag: true,
-                errors: null,
-                user: dat,
-                token: jwt.sign({email: email}, 'secret')
-                };
-              }
-              else {
-                return {
-                  flag: false,
-                  errors: "Invalid Password.",
-                  user: dat,
-                  token: null
-                };
-              }
-            })
-            .then(dat => {
-              console.log(dat);
-              return dat;
-            })
-            .catch(err => {
-              return {
-                flag: false,
-                errors: err.message,
-                user: null,
-                token: null
-              };
-            });
-        }
-      })
-      .catch((err)=>{
-        console.log(err);
-      });
-};
+          });
+      }
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
+}
 
-const createFest = (root, params) => {
+function createFest(root, params) {
   let {token} = params.viewer;
 
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if (err) {
-      let message = formatErrors(err);
-      return {
-        flag: false,
-        errors: message,
-        fest: null
-      };
-    }
-
+  return jwtwrapper(token, (decoded) => {
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
 
