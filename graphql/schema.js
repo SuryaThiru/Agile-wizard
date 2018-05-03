@@ -34,7 +34,8 @@ const {
   toggleFest,
   enableQr,
   updateAttendance,
-  verify
+  verify,
+  removeFest
 } = require('./resolvers');
 
 
@@ -106,8 +107,8 @@ let mutationType = new GraphQLObjectType({
       type: generalResponse,
       args: {
         festID: {type: GraphQLString},
-        viewer:{type: viewerInput},
-        code:{type: GraphQLString}
+        viewer: {type: viewerInput},
+        code: {type: GraphQLString}
       },
       resolve: updateAttendance
     },
@@ -117,6 +118,14 @@ let mutationType = new GraphQLObjectType({
         viewer:{type: viewerInput}
       },
       resolve: verify
+    },
+    removeFest:{
+      type: generalResponse,
+      args:{
+        festID : {type: GraphQLString},
+        viewer: {type: viewerInput}
+      },
+      resolve: removeFest
     }
   }
 });

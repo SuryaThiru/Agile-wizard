@@ -438,6 +438,35 @@ function updateAttendance(root, params) {
     });
 }
 
+const removeFest = (root, params) => {
+  let {token} = params.viewer;
+
+  return jwt.verify(token, 'secret', (err, decoded) => {
+    if (err) {
+      let message = formatErrors(err);
+      return {
+        flag: false,
+        errors: message
+      };
+    }
+
+    let query = db.collection('fests').doc(params.festID);
+    return query.delete()
+      .then(()=>{
+        console.log("Fest successfully deleted!");
+        return{
+          flag: true,
+          errors: null
+        }
+    }).catch((err) => {
+      let message = formatErrors(err);
+      return {
+        flag: false,
+        errors: message
+      }
+    })
+  });
+};
 module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
@@ -447,5 +476,6 @@ module.exports = {
   toggleFest: toggleFest,
   enableQr: enableQr,
   updateAttendance: updateAttendance,
-  verify: verify
+  verify: verify,
+  removeFest: removeFest
 };
