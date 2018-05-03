@@ -11,15 +11,15 @@ let {
 // User details Schema
 let userType = new GraphQLObjectType({
   name: 'User',
-  fields:{
-    email:{type: new GraphQLNonNull(GraphQLString)},
-    fname:{type: new GraphQLNonNull(GraphQLString)},
-    lname:{type: new GraphQLNonNull(GraphQLString)},
-    phone:{type: new GraphQLNonNull(GraphQLString)},
-    reg:{type: GraphQLString},
-    password:{type: new GraphQLNonNull(GraphQLString)},
-    google:{type: new GraphQLNonNull(GraphQLBoolean)},
-    gender:{type: new GraphQLNonNull(GraphQLString)}
+  fields: {
+    email: {type: new GraphQLNonNull(GraphQLString)},
+    fname: {type: new GraphQLNonNull(GraphQLString)},
+    lname: {type: new GraphQLNonNull(GraphQLString)},
+    phone: {type: new GraphQLNonNull(GraphQLString)},
+    reg: {type: GraphQLString},
+    password: {type: new GraphQLNonNull(GraphQLString)},
+    google: {type: new GraphQLNonNull(GraphQLBoolean)},
+    gender: {type: new GraphQLNonNull(GraphQLString)}
   }
 });
 
@@ -37,7 +37,7 @@ let authResponse = new GraphQLObjectType({
 // Response for findUser
 let queryResponse = new GraphQLObjectType({
   name: 'queryResponse',
-  fields:{
+  fields: {
     flag: {type: GraphQLBoolean},
     user: {type: userType},
     errors: {type: GraphQLString}
@@ -47,7 +47,7 @@ let queryResponse = new GraphQLObjectType({
 // Response to the CreateUser Query
 let registerResponse = new GraphQLObjectType({
   name: 'registerResponse',
-  fields:{
+  fields: {
     flag: {type: GraphQLBoolean},
     errors: {type: GraphQLString}
   }
@@ -56,7 +56,7 @@ let registerResponse = new GraphQLObjectType({
 // Feedback schema
 let feedback = new GraphQLObjectType({
     name: 'feedback',
-    fields:{
+    fields: {
         email: {type: GraphQLString},
         response: {type: GraphQLString}
     }
@@ -65,7 +65,7 @@ let feedback = new GraphQLObjectType({
 // Fests schema common for user app
 let userFeed = new GraphQLObjectType({
   name: 'userFeed',
-  fields:{
+  fields: {
     ID: {type: new GraphQLNonNull(GraphQLString)},
     name: {type: new GraphQLNonNull(GraphQLString)},
     venue: {type: new GraphQLNonNull(GraphQLString)},
@@ -80,7 +80,7 @@ let userFeed = new GraphQLObjectType({
 // Fests schema for innocent carpenter
 let carpenterFeed = new GraphQLObjectType({
     name: 'carpenterFeed',
-    fields:{
+    fields: {
         ID: {type: new GraphQLNonNull(GraphQLString)},
         name: {type: new GraphQLNonNull(GraphQLString)},
         venue: {type: new GraphQLNonNull(GraphQLString)},
@@ -100,7 +100,7 @@ let carpenterFeed = new GraphQLObjectType({
 // Response for querying fests collection/ getFeed query
 let feedResponse = new GraphQLObjectType({
     name: 'feedResponse',
-    fields:{
+    fields: {
         flag: {type: GraphQLBoolean},
         errors: {type: GraphQLString},
         feed: {type: new GraphQLList(userFeed)}
@@ -109,7 +109,7 @@ let feedResponse = new GraphQLObjectType({
 
 let generalResponse = new GraphQLObjectType({
   name: 'addFeedResponse',
-  fields:{
+  fields: {
     flag: {type: GraphQLBoolean},
     errors: {type: GraphQLString}
   }
@@ -117,7 +117,7 @@ let generalResponse = new GraphQLObjectType({
 
 let festResponse = new GraphQLObjectType({
   name: 'festResponse',
-  fields:{
+  fields: {
     flag: {type: GraphQLBoolean},
     errors: {type: GraphQLString},
     fest: {type: carpenterFeed}

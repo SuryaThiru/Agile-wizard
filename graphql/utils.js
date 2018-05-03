@@ -1,14 +1,5 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 
-let htm = fs.readFileSync("../Other/template.html");
-
-const replaceString = (message) =>{
-  let data = String(htm);
-  data = data.replace('##emailid##',message.email)
-    .replace('##link##',message.link).replace('##name##',message.fname);
-  return data;
-};
 
 const test = (stuff)=>{
   return {
@@ -18,21 +9,10 @@ const test = (stuff)=>{
   };
 };
 
-const constructMessage = (email, message) =>{
-  let data = replaceString(message);
-  return {
-    to: email,
-    from: 'onimusha702@gmail.com',
-    subject: 'Verify your account',
-    text: 'balls and balls',
-    html: data,
-  };
-};
-
 const formatErrors = (e) => {
   console.log(e.code);
   if(e.name === 'JsonWebTokenError'){
-    return "token is Invalid";
+    return "Token is Invalid";
   }
   else if(e.code === 6){
     return "User Already exists";
@@ -49,6 +29,5 @@ const validate =  (email)=>{
 module.exports = {
   test: test,
   formatErrors: formatErrors,
-  constructMessage: constructMessage,
   validate: validate
 };
