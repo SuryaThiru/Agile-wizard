@@ -16,6 +16,12 @@ function findUser(root, params) {
   let {token} = params.viewer;
 
   return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
+    }
     let {email} = decoded;
 
     return db.collection("users").doc(email).get()
@@ -127,6 +133,7 @@ function authenticate(root, params) {
 
   return db.collection("users").doc(email).get()
     .then((doc)=>{
+      let dat = doc.data();
       if(!doc.exists) {
         return {
           status_code: 420,
@@ -137,7 +144,6 @@ function authenticate(root, params) {
         };
       }
       else {
-        let dat = doc.data();
         if(!dat.isVerified){
           return{
             status_code: 420,
@@ -155,7 +161,7 @@ function authenticate(root, params) {
               status_code: 200,
               errors: null,
               user: dat,
-              token: jwt.sign({email: email}, 'secret'),
+              token: jwt.sign({email: email, auth_level: dat.auth_level}, 'secret'),
               auth_level: dat.auth_level
               };
             }
@@ -193,9 +199,14 @@ function createFest(root, params) {
   let {token} = params.viewer;
 
   return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
+    }
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
-
     return query.create(festData)
       .then(()=>{
         let doc = festData;
@@ -227,7 +238,12 @@ const toggleFest = (root, params) => {
         errors: message
       };
     }
-
+    if (decoded.auth_level<=2){
+     return {
+       status_code: 420,
+       errors: 'Unauthorized'
+     }
+    }
     let query = db.collection('fests').doc(params.ID);
     return query.get()
       .then((doc)=>{
@@ -248,13 +264,13 @@ const toggleFest = (root, params) => {
           }).catch(err => {
             console.log(err);
             console.log(err.code);
-            return{
+            return {
               status_code: 400,
               errors: err.message
             };
         });
       }).catch(err => {
-        return{
+        return {
           status_code: 400,
           errors: err.message
         };
@@ -271,6 +287,12 @@ const enableQr = (root, params) => {
         status_code: 420,
         errors: message
       };
+    }
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
     }
     qrloop(params.ID, params.timelimit, 5);
     return {
@@ -433,7 +455,12 @@ const removeFest = (root, params) => {
         errors: message
       };
     }
-
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
+    }
     let query = db.collection('fests').doc(params.festID);
     return query.delete()
       .then(()=>{
