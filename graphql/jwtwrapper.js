@@ -11,7 +11,7 @@ function jwtErrorHandler(err) {
   let message = formatErrors(err);
 
   return {
-    flag: false,
+    status_code: 420,
     errors: message,
     fest: null
   };

@@ -1,12 +1,12 @@
 const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
 
-const apikey = require('../../config/mail_api');
+console.log(process.env['sendgrid']);
 
-sgMail.setApiKey(apikey.key);
+sgMail.setApiKey(process.env['sendgrid']);
 
 function renderTemplate(message) {
-  let htm = fs.readFileSync("graphql/views/template.html");
+  let htm = fs.readFileSync("../graphql/views/template.html");
   let data = String(htm);
 
   data = data.replace('##emailid##',message.email)
