@@ -7,6 +7,6 @@ admin.initializeApp ({
   databaseURL: "https://lazarus-c11d5.firebaseio.com"
 });
 
-let db = admin.firestore();
+let db = admin.firestore;
 
 module.exports = db;

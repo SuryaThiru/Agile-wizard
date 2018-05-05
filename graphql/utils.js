@@ -11,7 +11,7 @@ const test = (stuff)=>{
 
 const formatErrors = (e) => {
   console.log(e.code);
-  if(e.name === 'JsonWebTokenError'){
+  if(e.name === 'JsonWebTokenError' || e.name === 'SyntaxError'){
     return "Token is Invalid";
   }
   else if(e.code === 6){
