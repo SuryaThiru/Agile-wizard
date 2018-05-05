@@ -125,7 +125,7 @@ function createUser(root, params) {
         return {
           status_code: 420,
           errors: 'User already exists'
-        }
+        };
       }
       return {
         status_code: 400,
@@ -167,7 +167,8 @@ function authenticate(root, params) {
               status_code: 200,
               errors: null,
               user: dat,
-              token: jwt.sign({email: email, auth_level: dat.auth_level}, 'secret'),
+              token: jwt.sign({email: email,
+                auth_level: dat.auth_level}, 'secret'),
               auth_level: dat.auth_level
               };
             }
@@ -209,7 +210,7 @@ function createFest(root, params) {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
@@ -248,7 +249,7 @@ const toggleFest = (root, params) => {
      return {
        status_code: 420,
        errors: 'Unauthorized'
-     }
+     };
     }
     let query = db.collection('fests').doc(params.ID);
     return query.get()
@@ -298,7 +299,7 @@ const enableQr = (root, params) => {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     qrloop(params.ID, params.timelimit, 5);
     return {
@@ -338,7 +339,7 @@ const verify = (root, params)=>{
       return {
         status_code: 200,
         errors: null
-      }
+      };
   });
 };
 
@@ -471,7 +472,7 @@ function removeFest(root, params) {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     let query = db.collection('fests').doc(params.festID);
     return query.delete()
@@ -480,13 +481,13 @@ function removeFest(root, params) {
         return{
           status_code: 200,
           errors: null
-        }
+        };
     }).catch((err) => {
       let message = formatErrors(err);
       return {
         status_code: 400,
         errors: message
-      }
+      };
     })
   });
 }
@@ -525,7 +526,7 @@ function changePassword(root, params) {
            return {
              status_code: 400,
              errors: err.message
-           }
+           };
         });
       });
   }
@@ -546,7 +547,7 @@ function changePassword(root, params) {
             return {
               status_code: 400,
               errors: 'Something went wrong'
-            }
+            };
           }
           else{
             return doc.data();
@@ -554,7 +555,8 @@ function changePassword(root, params) {
         }).then((dat) => {
         if(dat.pchange === token){
           let password = bcrypt.hashSync(params.password, 10);
-          return users.update({password: password, pchange: FieldValue.delete()})
+          return users.update({password: password,
+            pchange: FieldValue.delete()})
             .then(() => {
               return {
                 status_code: 200,
@@ -571,9 +573,9 @@ function changePassword(root, params) {
           return {
             status_code: 400,
             errors: 'Token is Invalid'
-          }
+          };
         }
-      })
+      });
     });
   }
 }
