@@ -3,6 +3,7 @@ let {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLList,
+  GraphQLInt,
   GraphQLBoolean
 } = require('graphql');
 
@@ -27,10 +28,11 @@ let userType = new GraphQLObjectType({
 let authResponse = new GraphQLObjectType({
   name:'authResponse',
   fields: {
-    flag: {type: GraphQLBoolean},
+    status_code: {type: GraphQLInt},
     errors: {type: GraphQLString},
     user: {type: userType},
-    token: {type: GraphQLString}
+    token: {type: GraphQLString},
+    auth_level: {type: GraphQLInt}
   }
 });
 
@@ -38,7 +40,7 @@ let authResponse = new GraphQLObjectType({
 let queryResponse = new GraphQLObjectType({
   name: 'queryResponse',
   fields: {
-    flag: {type: GraphQLBoolean},
+    status_code: {type: GraphQLInt},
     user: {type: userType},
     errors: {type: GraphQLString}
   }
@@ -48,7 +50,7 @@ let queryResponse = new GraphQLObjectType({
 let registerResponse = new GraphQLObjectType({
   name: 'registerResponse',
   fields: {
-    flag: {type: GraphQLBoolean},
+    status_code: {type: GraphQLInt},
     errors: {type: GraphQLString}
   }
 });
@@ -101,7 +103,7 @@ let carpenterFeed = new GraphQLObjectType({
 let feedResponse = new GraphQLObjectType({
     name: 'feedResponse',
     fields: {
-        flag: {type: GraphQLBoolean},
+        status_code: {type: GraphQLInt},
         errors: {type: GraphQLString},
         feed: {type: new GraphQLList(userFeed)}
     }
@@ -110,7 +112,7 @@ let feedResponse = new GraphQLObjectType({
 let generalResponse = new GraphQLObjectType({
   name: 'addFeedResponse',
   fields: {
-    flag: {type: GraphQLBoolean},
+    status_code: {type: GraphQLInt},
     errors: {type: GraphQLString}
   }
 });
@@ -118,7 +120,7 @@ let generalResponse = new GraphQLObjectType({
 let festResponse = new GraphQLObjectType({
   name: 'festResponse',
   fields: {
-    flag: {type: GraphQLBoolean},
+    status_code: {type: GraphQLInt},
     errors: {type: GraphQLString},
     fest: {type: carpenterFeed}
   }

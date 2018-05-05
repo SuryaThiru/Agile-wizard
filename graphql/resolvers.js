@@ -20,13 +20,19 @@ function findUser(root, params) {
   let {token} = params.viewer;
 
   return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
+    }
     let {email} = decoded;
 
     return db.collection("users").doc(email).get()
       .then((doc) => {
         if(!doc.exists) {
           return {
-            flag: false,
+            status_code: 420,
             user: null,
             errors: "user does not exist"
           };
@@ -37,7 +43,7 @@ function findUser(root, params) {
         }})
       .then((dat)=>{
         return {
-          flag: true,
+          status_code: 200,
           user: dat,
           errors: null
         };
@@ -57,7 +63,7 @@ function getUserFeed(root, params) {
         if (snapshot.empty) {
           console.log('no events');
           return {
-            flag: false,
+            status_code: 420,
             errors: 'No events currently.',
             feed: null
           };
@@ -70,14 +76,14 @@ function getUserFeed(root, params) {
           });
 
           return {
-            flag: true,
+            status_code: 200,
             errors: null,
             feed: docList
           };
         }
       }).catch(err => {
         return {
-          flag: false,
+          status_code: 400,
           errors: err.message,
           feed: null
         };
@@ -89,7 +95,7 @@ function getUserFeed(root, params) {
 function createUser(root, params) {
   if(!validate(params.input.email)) {
     return {
-      flag: false,
+      status_code: 420,
       errors: "Invalid Email"
     };
   }
@@ -100,22 +106,27 @@ function createUser(root, params) {
   let users = db.collection('users').doc(params.input.email);
   let userData = JSON.parse(JSON.stringify(params.input));
   userData.isVerified = false;
+  userData.auth_level = 1;
 
   return users.create(userData)
     .then(() => {
       let token = jwt.sign({email: userData.email}, 'emailSecret');
 
       sendSignUpVerification(userData, token);
-      // TODO email failed - delete created user?
-
       return {
-        flag: true,
+        status_code: 200,
         errors: null
       };
     })
     .catch((err) => {
+      if(err.code === 6){
+        return {
+          status_code: 420,
+          errors: 'User already exists'
+        }
+      }
       return {
-        flag: false,
+        status_code: 400,
         errors: formatErrors(err)
       };
     });
@@ -126,22 +137,24 @@ function authenticate(root, params) {
 
   return db.collection("users").doc(email).get()
     .then((doc)=>{
+      let dat = doc.data();
       if(!doc.exists) {
         return {
-          flag: true,
-          errors: "Invalid Username",
+          status_code: 420,
+          errors: "Invalid Email",
           user: null,
-          token: null
+          token: null,
+          auth_level: -1
         };
       }
       else {
-        let dat = doc.data();
         if(!dat.isVerified){
           return{
-            flag: false,
-            errors: "Email Not Verified",
+            status_code: 420,
+            errors: "Email not verified",
             user: null,
-            token: null
+            token: null,
+            auth_level: -1
           };
         }
 
@@ -149,18 +162,20 @@ function authenticate(root, params) {
           .then((res) => {
             if (res) {
               return {
-              flag: true,
+              status_code: 200,
               errors: null,
               user: dat,
-              token: jwt.sign({email: email}, 'secret')
+              token: jwt.sign({email: email, auth_level: dat.auth_level}, 'secret'),
+              auth_level: dat.auth_level
               };
             }
             else {
               return {
-                flag: false,
+                status_code: 420,
                 errors: "Invalid Password.",
                 user: dat,
-                token: null
+                token: null,
+                auth_level: -1
               };
             }
           })
@@ -170,10 +185,11 @@ function authenticate(root, params) {
           })
           .catch(err => {
             return {
-              flag: false,
+              status_code: 400,
               errors: err.message,
               user: null,
-              token: null
+              token: null,
+              auth_level: -1
             };
           });
       }
@@ -187,23 +203,28 @@ function createFest(root, params) {
   let {token} = params.viewer;
 
   return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
+    }
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
-
     return query.create(festData)
       .then(()=>{
         let doc = festData;
         doc.ID = query.id;
         return{
-          flag: true,
+          status_code: 200,
           errors: null,
           fest: doc
         };
       }).catch((err)=>{
         console.log("LOG THIS CREATEFEST" + err);
         let message = formatErrors(err);
-        return{
-          flag: false,
+        return {
+          status_code: 420,
           errors: message,
           fest: null
         };
@@ -215,19 +236,24 @@ const toggleFest = (root, params) => {
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
     if(err){
-      console.log(err);
+      let message = formatErrors(err);
       return{
-        flag: false,
-        errors: "Invalid token"
+        status_code: 420,
+        errors: message
       };
     }
-
+    if (decoded.auth_level<=2){
+     return {
+       status_code: 420,
+       errors: 'Unauthorized'
+     }
+    }
     let query = db.collection('fests').doc(params.ID);
     return query.get()
       .then((doc)=>{
         if(!doc.exists){
           return{
-            flag: false,
+            status_code: 420,
             errors: "Invalid ID."
           };
         }
@@ -236,20 +262,20 @@ const toggleFest = (root, params) => {
         return query.update({isActive: !docZ.isActive})
           .then(()=>{
             return {
-              flag: true,
+              status_code: 200,
               errors: null
             };
           }).catch(err => {
             console.log(err);
             console.log(err.code);
-            return{
-              flag: false,
+            return {
+              status_code: 400,
               errors: err.message
             };
         });
       }).catch(err => {
-        return{
-          flag: false,
+        return {
+          status_code: 400,
           errors: err.message
         };
     });
@@ -262,14 +288,21 @@ function enableQr(root, params) {
   return jwtwrapper(token, (decoded) => {
     let status = enableQR(params.festID);
 
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      };
+    }
+
     if (status.code === 1)
       return {
-        flag: false,
+        status_code: 420,
         errors: status.status
       };
 
     return {
-      flag: true,
+      status_code: 200,
       errors: status.status
     };
   });
@@ -298,24 +331,24 @@ const verify = (root, params)=>{
   let {token} = params.viewer;
   return jwt.verify(token, 'emailSecret', (err, decoded) => {
     if (err) {
-      console.log(err);
+      let message = formatErrors(err);
       return {
-        flag: false,
-        errors: "Invalid token"
+        status_code: 420,
+        errors: message
       };
     }
     return db.collection('users').doc(decoded.email)
       .update({isVerified: true})
       .then(()=>{
         return {
-          flag: true,
+          status_code: 200,
           errors: null
         };
       }).catch(err => {
       console.log(err);
       console.log(err.code);
       return{
-        flag: false,
+        status_code: 400,
         errors: err.message
       };
     });
@@ -330,16 +363,17 @@ function updateAttendance(root, params) {
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
     if(err){
+      let message = formatErrors(err);
       return{
-        flag:false,
-        errors: 'Invalid token'
+        status_code: 420,
+        errors: message
       };
     }
     return festDoc.get()
       .then((doc)=>{
         if(!doc.exists){
           return {
-            flag: false,
+            status_code: 200,
             errors: null
           };
         }
@@ -357,25 +391,25 @@ function updateAttendance(root, params) {
             return festDoc.set({attendance: records}, {merge: true})
               .then(() => {
                 return {
-                  flag: true,
+                  status_code: 200,
                   errors: null
                 };
               }).catch(err => {
                 return {
-                  flag: false,
+                  status_code: 400,
                   errors: err.message
                 };
               });
         }
         else {
           return {
-            flag: false,
+            status_code: 420,
             errors: 'Invalid Verification Code'
           };
         }
       }).catch(err => {
         return {
-          flag: false,
+          status_code: 400,
           errors: err.message
         };
       });
@@ -435,6 +469,40 @@ function updateAttendance(root, params) {
     });
 }
 
+const removeFest = (root, params) => {
+  let {token} = params.viewer;
+
+  return jwt.verify(token, 'secret', (err, decoded) => {
+    if (err) {
+      let message = formatErrors(err);
+      return {
+        status_code: 420,
+        errors: message
+      };
+    }
+    if (decoded.auth_level<=2){
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      }
+    }
+    let query = db.collection('fests').doc(params.festID);
+    return query.delete()
+      .then(()=>{
+        console.log("Fest successfully deleted!");
+        return{
+          status_code: 200,
+          errors: null
+        }
+    }).catch((err) => {
+      let message = formatErrors(err);
+      return {
+        status_code: 400,
+        errors: message
+      }
+    })
+  });
+};
 module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
@@ -445,5 +513,6 @@ module.exports = {
   enableQr: enableQr,
   disableQr: disableQr,
   updateAttendance: updateAttendance,
-  verify: verify
+  verify: verify,
+  removeFest: removeFest
 };
