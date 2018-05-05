@@ -89,7 +89,7 @@ function getUserFeed(root, params) {
         };
       });
   });
-};
+}
 
 // Mutation Resolvers
 function createUser(root, params) {
@@ -484,7 +484,7 @@ const removeFest = (root, params) => {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     let query = db.collection('fests').doc(params.festID);
     return query.delete()
@@ -493,14 +493,14 @@ const removeFest = (root, params) => {
         return{
           status_code: 200,
           errors: null
-        }
+        };
     }).catch((err) => {
       let message = formatErrors(err);
       return {
         status_code: 400,
         errors: message
-      }
-    })
+      };
+    });
   });
 };
 module.exports = {
