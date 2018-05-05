@@ -6,8 +6,7 @@
 const {
   GraphQLString,
   GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLInt
+  GraphQLObjectType
 } = require('graphql');
 
 const {
@@ -33,6 +32,7 @@ const {
   createFest,
   toggleFest,
   enableQr,
+  disableQr,
   updateAttendance,
   verify
 } = require('./resolvers');
@@ -96,11 +96,18 @@ let mutationType = new GraphQLObjectType({
     enableQr: {
       type: generalResponse,
       args: {
-        ID: {type: GraphQLString},
-        viewer:{type: viewerInput},
-        timelimit: {type: GraphQLInt}
+        festID: {type: GraphQLString},
+        viewer:{type: viewerInput}
       },
       resolve: enableQr
+    },
+    disableQr: {
+      type: generalResponse,
+      args: {
+        festID: {type: GraphQLString},
+        viewer:{type: viewerInput}
+      },
+      resolve: disableQr
     },
     updateAttendance: {
       type: generalResponse,

@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require('./db');
-const qrloop = require('./qr/qrloop');
+const {
+  enableQR,
+  disableQR
+} = require('./qr/qrloop');
+
 const sendSignUpVerification = require('./email/signup');
 const jwtwrapper = require('./jwtwrapper');
 
@@ -252,23 +256,43 @@ const toggleFest = (root, params) => {
   });
 };
 
-const enableQr = (root, params) => {
+function enableQr(root, params) {
   let {token} = params.viewer;
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if (err) {
-      console.log(err);
+
+  return jwtwrapper(token, (decoded) => {
+    let status = enableQR(params.festID);
+
+    if (status.code === 1)
       return {
         flag: false,
-        errors: "Invalid token"
+        errors: status.status
       };
-    }
-    qrloop(params.ID, params.timelimit, 5);
+
     return {
       flag: true,
-      status: 'qrcode generation initiated'
+      errors: status.status
     };
   });
-};
+}
+
+function disableQr(root, params) {
+  let {token} = params.viewer;
+
+  return jwtwrapper(token, (decoded) => {
+    let status = disableQR(params.festID);
+
+    if (status.code === 1)
+      return {
+        flag: false,
+        errors: status.status
+      };
+
+    return {
+      flag: true,
+      errors: status.status
+    };
+  });
+}
 
 const verify = (root, params)=>{
   let {token} = params.viewer;
@@ -419,6 +443,7 @@ module.exports = {
   createFest: createFest,
   toggleFest: toggleFest,
   enableQr: enableQr,
+  disableQr: disableQr,
   updateAttendance: updateAttendance,
   verify: verify
 };
