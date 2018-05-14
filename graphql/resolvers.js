@@ -243,6 +243,45 @@ function createFest(root, params) {
   });
 }
 
+function editFest(root, params) {
+  let {token} = params.viewer;
+
+  return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level <= 2) {
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      };
+    }
+
+    let festData = JSON.parse(JSON.stringify(params.festInput));
+    let festId = params.ID;
+    let query = db.collection('fests').doc(festId);
+
+    return query.update(festData)
+      .then(() => {
+        let doc = festData;
+        doc.ID = query.id;
+
+        return{
+          status_code: 200,
+          errors: null,
+          fest: doc
+        };
+      })
+      .catch(err => {
+        console.log('log edit fest' + err);
+        let message = formatErrors(err);
+
+        return {
+          status_code: 420,
+          errors: message,
+          fest: null
+        };
+      });
+  });
+}
+
 const toggleFest = (root, params) => {
   let {token} = params.viewer;
   return jwt.verify(token, 'secret', (err, decoded) => {
@@ -615,6 +654,7 @@ module.exports = {
   createUser: createUser,
   authenticate: authenticate,
   createFest: createFest,
+  editFest: editFest,
   toggleFest: toggleFest,
   enableQr: enableQr,
   disableQr: disableQr,

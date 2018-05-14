@@ -48,8 +48,28 @@ let festInput = new GraphQLInputObjectType({
   }
 });
 
+let festEdit = new GraphQLInputObjectType({
+  name: 'festEdit',
+  fields: {
+    name: {type: GraphQLString},
+    venue: {type: GraphQLString},
+    tags: {type: new GraphQLList(GraphQLString)},
+    description: {type: GraphQLString},
+    speakers: {type: new GraphQLList(GraphQLString)},
+    contact: {type: new GraphQLList(GraphQLString)},
+    link: {type: new GraphQLList(GraphQLString)},
+    isActive: {type: GraphQLBoolean},
+    RSVP: {type: new GraphQLList(GraphQLString)},
+    attendance : {type: new GraphQLList(GraphQLString)},
+    feedback: {type: new GraphQLList(GraphQLString)},
+    fromDate: {type: GraphQLString}, // ISO format eg: 2018-05-14T09:22:42.232Z
+    toDate: {type: GraphQLString}    // default date format in JS
+  }
+});
+
 module.exports = {
   userInput: userInput,
   viewerInput: viewerInput,
-  festInput: festInput
+  festInput: festInput,
+  festEdit: festEdit
 };

@@ -22,6 +22,25 @@ mutation festcreate{
 }
 ```
 
+#### Edit a fest
+```
+mutation festedit{
+  editFest(viewer:{token: <token>}, ID:<string festID>, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,RSVP: <empty list>,attendance : <empty list>,feedback: <empty list>,fromDate: <ISO date string>,toDate: <ISO date string>}){
+    status_code
+    errors
+    fest{
+      ID
+      speakers
+      RSVP
+      speakers
+      tags
+      contact
+      isActive
+    }
+  }
+}
+```
+
 #### Change or toggle event to active or not
 ```
 mutation toogle{

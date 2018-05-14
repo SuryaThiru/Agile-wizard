@@ -22,7 +22,8 @@ const {
 const {
   userInput,
   viewerInput,
-  festInput
+  festInput,
+  festEdit
 } = require('./inputs');
 
 const {
@@ -37,7 +38,8 @@ const {
   updateAttendance,
   verify,
   removeFest,
-  changePassword
+  changePassword,
+  editFest
 } = require('./resolvers');
 
 
@@ -72,7 +74,6 @@ let mutationType = new GraphQLObjectType({
       },
       resolve: createUser
     },
-    festID: {type: GraphQLString},
     authenticate: {
       type: authResponse,
       args: {
@@ -88,6 +89,15 @@ let mutationType = new GraphQLObjectType({
         festInput: {type: festInput}
       },
       resolve: createFest
+    },
+    editFest: {
+      type: festResponse,
+      args: {
+        viewer: {type: viewerInput},
+        ID: {type: GraphQLString},
+        festInput: {type: festEdit}
+      },
+      resolve: editFest
     },
     toggleFest: {
       type: generalResponse,
