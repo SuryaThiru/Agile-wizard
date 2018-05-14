@@ -42,7 +42,8 @@ const {
   verify,
   removeFest,
   changePassword,
-  addFeedback
+  addFeedback,
+  addRSVP
 } = require('./resolvers');
 
 
@@ -151,6 +152,14 @@ let mutationType = new GraphQLObjectType({
         feedback: {type: new GraphQLNonNull(GraphQLString)}
       },
       resolve: addFeedback
+    },
+    addRSVP: {
+      type: generalResponse,
+      args: {
+        festID: {type: new GraphQLNonNull(GraphQLString)},
+        viewer: {type: new GraphQLNonNull(viewerInput)}
+      },
+      resolve: addRSVP
     },
     verify: {
       type: generalResponse,

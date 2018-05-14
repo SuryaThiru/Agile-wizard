@@ -577,7 +577,7 @@ function addFeedback(root, params) {
         if (!doc.exists) {
           return {
             status_code: 420,
-            errors: "Invalid ID."
+            errors: "Invalid fest ID."
           };
         }
 
@@ -588,7 +588,55 @@ function addFeedback(root, params) {
           response: params.feedback
         });
 
-        return query.set(data)
+        return query.update({feedback: data.feedback})
+          .then(() => {
+            return {
+              status_code: 200,
+              errors: null
+            };
+          })
+          .catch(err => {
+            return {
+              status_code: 400,
+              errors: err.message
+            };
+          });
+      })
+      .catch(err => {
+        return {
+          status_code: 400,
+          errors: err.message
+        };
+      });
+  });
+}
+
+function addRSVP(root, params) {
+  let {token} = params.viewer;
+
+  return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level <= 1) {
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      };
+    }
+
+    let query = db.collection('fests').doc(params.festID);
+    return query.get()
+      .then(doc => {
+        if (!doc.exists) {
+          return {
+            status_code: 420,
+            errors: "Invalid fest ID."
+          };
+        }
+
+        let data = doc.data();
+        data.RSVP = data.RSVP || [];
+        data.RSVP.push(decoded.email);
+
+        return query.update({RSVP: data.RSVP})
           .then(() => {
             return {
               status_code: 200,
@@ -749,5 +797,6 @@ module.exports = {
   verify: verify,
   removeFest: removeFest,
   changePassword: changePassword,
-  addFeedback: addFeedback
+  addFeedback: addFeedback,
+  addRSVP: addRSVP
 };
