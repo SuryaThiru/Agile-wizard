@@ -43,8 +43,18 @@ mutation festedit{
 
 #### Change or toggle event to active or not
 ```
-mutation toogle{
+mutation toggle{
   toggleFest(viewer:{token: <token>}, ID: <string festID>){
+    status_code
+    errors
+  }
+}
+```
+
+#### Delete a fest
+```
+mutation delete{
+  deleteFest(viewer:{token: <token>}, ID: <string festID>){
     status_code
     errors
   }

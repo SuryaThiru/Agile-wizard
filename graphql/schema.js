@@ -32,14 +32,15 @@ const {
   createUser,
   authenticate,
   createFest,
+  editFest,
+  deleteFest,
   toggleFest,
   enableQr,
   disableQr,
   updateAttendance,
   verify,
   removeFest,
-  changePassword,
-  editFest
+  changePassword
 } = require('./resolvers');
 
 
@@ -98,6 +99,14 @@ let mutationType = new GraphQLObjectType({
         festInput: {type: festEdit}
       },
       resolve: editFest
+    },
+    deleteFest: {
+      type: generalResponse,
+      args: {
+        viewer: {type: viewerInput},
+        ID: {type: GraphQLString}
+      },
+      resolve: deleteFest
     },
     toggleFest: {
       type: generalResponse,
