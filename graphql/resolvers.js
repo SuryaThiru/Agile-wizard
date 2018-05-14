@@ -216,12 +216,15 @@ function createFest(root, params) {
         errors: 'Unauthorized'
       };
     }
+
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
+
     return query.create(festData)
       .then(()=>{
         let doc = festData;
         doc.ID = query.id;
+
         return{
           status_code: 200,
           errors: null,
@@ -230,6 +233,7 @@ function createFest(root, params) {
       }).catch((err)=>{
         console.log("LOG THIS CREATEFEST" + err);
         let message = formatErrors(err);
+
         return {
           status_code: 420,
           errors: message,

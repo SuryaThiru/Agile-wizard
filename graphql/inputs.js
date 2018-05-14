@@ -43,6 +43,8 @@ let festInput = new GraphQLInputObjectType({
     RSVP: {type: new GraphQLList(GraphQLString)},
     attendance : {type: new GraphQLList(GraphQLString)},
     feedback: {type: new GraphQLList(GraphQLString)},
+    fromDate: {type: GraphQLString}, // ISO format eg: 2018-05-14T09:22:42.232Z
+    toDate: {type: GraphQLString}    // default date format in JS
   }
 });
 
