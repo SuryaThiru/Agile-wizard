@@ -138,9 +138,9 @@ let mutationType = new GraphQLObjectType({
     updateAttendance: {
       type: generalResponse,
       args: {
-        festID: {type: GraphQLString},
-        viewer: {type: viewerInput},
-        code: {type: GraphQLString}
+        festID: {type: new GraphQLNonNull(GraphQLString)},
+        viewer: {type: new GraphQLNonNull(viewerInput)},
+        code: {type: new GraphQLNonNull(GraphQLString)}
       },
       resolve: updateAttendance
     },

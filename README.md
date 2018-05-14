@@ -6,7 +6,7 @@ The backend system for projectX powered by graphql
 #### Create a fest
 ```
 mutation festcreate{
-  createFest(viewer:{token: <token>}, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,RSVP: <empty list>,attendance : <empty list>,feedback: <empty list>,fromDate: <ISO date string>,toDate: <ISO date string>}){
+  createFest(viewer:{token: <token>}, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,fromDate: <ISO date string>,toDate: <ISO date string>}){
     status_code
     errors
     fest{
@@ -25,7 +25,7 @@ mutation festcreate{
 #### Edit a fest
 ```
 mutation festedit{
-  editFest(viewer:{token: <token>}, ID:<string festID>, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,RSVP: <empty list>,attendance : <empty list>,feedback: <empty list>,fromDate: <ISO date string>,toDate: <ISO date string>}){
+  editFest(viewer:{token: <token>}, ID:<string festID>, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,fromDate: <ISO date string>,toDate: <ISO date string>}){
     status_code
     errors
     fest{
@@ -145,6 +145,16 @@ mutation enableQR {
 ```$xslt
 mutation disableQR {
   disableQr(festID: <string>, viewer:{token: <token>}) {
+    status_code
+    errors
+  }
+}
+```
+
+#### Update user attendance 
+```$xslt
+mutation attendance {
+  updateAttendance(festID: <string>, viewer:{token: <token>}, code: <string>) {
     status_code
     errors
   }

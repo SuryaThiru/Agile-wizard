@@ -317,14 +317,8 @@ function deleteFest(root, params) {
 
 const toggleFest = (root, params) => {
   let {token} = params.viewer;
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if(err){
-      let message = formatErrors(err);
-      return{
-        status_code: 420,
-        errors: message
-      };
-    }
+
+  return jwtwrapper(token, (decoded) => {
     if (decoded.auth_level<=2){
      return {
        status_code: 420,
@@ -452,45 +446,49 @@ function updateAttendance(root, params) {
   let festDoc = db.collection('fests').doc(params.festID);
   // let verificationCode = params.code;
   let {token} = params.viewer;
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if(err){
-      let message = formatErrors(err);
-      return{
+
+  return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level<=1){
+      return {
         status_code: 420,
-        errors: message
+        errors: 'Unauthorized'
       };
     }
+
     return festDoc.get()
       .then((doc)=>{
         if(!doc.exists){
           return {
-            status_code: 200,
-            errors: null
+            status_code: 400,
+            errors: 'Invalid fest ID'
           };
         }
 
         let record = {
           email: decoded.email,
           timestamp: Math.floor(new Date() / 1000)  // UNIX epoch
-          };
+        };
+
         console.log(record);
         let dat = doc.data();
         console.log(dat.QRval);
         if(dat.QRval === params.code){
-          let records = dat.attendance;
-            records.push(record);
-            return festDoc.set({attendance: records}, {merge: true})
-              .then(() => {
-                return {
-                  status_code: 200,
-                  errors: null
-                };
-              }).catch(err => {
-                return {
-                  status_code: 400,
-                  errors: err.message
-                };
-              });
+          let records = dat.attendance || [];
+          records.push(record);
+
+          return festDoc.set({attendance: records}, {merge: true})
+            .then(() => {
+              return {
+                status_code: 200,
+                errors: null
+              };
+            })
+            .catch(err => {
+              return {
+                status_code: 400,
+                errors: err.message
+              };
+            });
         }
         else {
           return {
