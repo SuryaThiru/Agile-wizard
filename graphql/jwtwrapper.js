@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 
 function jwtErrorHandler(err) {
-  console.log(err);
+  console.log('jwt error: ' + err);
   let message = formatErrors(err);
 
   return {

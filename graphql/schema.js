@@ -6,7 +6,8 @@
 const {
   GraphQLString,
   GraphQLSchema,
-  GraphQLObjectType
+  GraphQLObjectType,
+  GraphQLInt
 } = require('graphql');
 
 const {
@@ -35,7 +36,8 @@ const {
   disableQr,
   updateAttendance,
   verify,
-  removeFest
+  removeFest,
+  changePassword
 } = require('./resolvers');
 
 
@@ -70,6 +72,7 @@ let mutationType = new GraphQLObjectType({
       },
       resolve: createUser
     },
+    festID: {type: GraphQLString},
     authenticate: {
       type: authResponse,
       args: {
@@ -122,17 +125,27 @@ let mutationType = new GraphQLObjectType({
     verify: {
       type: generalResponse,
       args: {
-        viewer:{type: viewerInput}
+        viewer: {type: viewerInput}
       },
       resolve: verify
     },
-    removeFest:{
+    removeFest: {
       type: generalResponse,
-      args:{
-        festID : {type: GraphQLString},
+      args: {
+        festID: {type: GraphQLString},
         viewer: {type: viewerInput}
       },
       resolve: removeFest
+    },
+    changePassword: {
+      type: generalResponse,
+      args: {
+        email: {type: GraphQLString},
+        option: {type: GraphQLInt},
+        viewer: {type: viewerInput},
+        password: {type: GraphQLString}
+      },
+      resolve: changePassword
     }
   }
 });

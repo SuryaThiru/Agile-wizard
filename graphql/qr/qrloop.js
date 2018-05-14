@@ -1,6 +1,6 @@
 const QRcode = require('qrcode');
 const crypto = require('crypto');
-const db = require('../db');
+const db = require('../db')();
 
 const updateInterval = 10; // udpate every few sec
 let festsBuffer = {};

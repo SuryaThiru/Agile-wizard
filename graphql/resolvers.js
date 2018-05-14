@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const db = require('./db');
 const {
   enableQR,
   disableQR
 } = require('./qr/qrloop');
-
-const sendSignUpVerification = require('./email/signup');
+const fire = require('./db');
+const sendVerification = require('./email/signup');
 const jwtwrapper = require('./jwtwrapper');
+const db = fire();
+const FieldValue = fire.FieldValue;
 
 const {
   formatErrors,
@@ -24,7 +25,7 @@ function findUser(root, params) {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     let {email} = decoded;
 
@@ -62,6 +63,7 @@ function getUserFeed(root, params) {
       .then(snapshot => {
         if (snapshot.empty) {
           console.log('no events');
+
           return {
             status_code: 420,
             errors: 'No events currently.',
@@ -110,9 +112,13 @@ function createUser(root, params) {
 
   return users.create(userData)
     .then(() => {
-      let token = jwt.sign({email: userData.email}, 'emailSecret');
-
-      sendSignUpVerification(userData, token);
+      let token = jwt.sign({email: userData.email, code: 1}, 'emailSecret');
+      let email_details = {
+        to: userData.email,
+        subject: 'verify your account',
+        text: 'verify your account'
+      };
+      sendVerification(userData, token, email_details);
       return {
         status_code: 200,
         errors: null
@@ -123,7 +129,7 @@ function createUser(root, params) {
         return {
           status_code: 420,
           errors: 'User already exists'
-        }
+        };
       }
       return {
         status_code: 400,
@@ -165,7 +171,8 @@ function authenticate(root, params) {
               status_code: 200,
               errors: null,
               user: dat,
-              token: jwt.sign({email: email, auth_level: dat.auth_level}, 'secret'),
+              token: jwt.sign({email: email,
+                auth_level: dat.auth_level}, 'secret'),
               auth_level: dat.auth_level
               };
             }
@@ -207,7 +214,7 @@ function createFest(root, params) {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     let festData = JSON.parse(JSON.stringify(params.festInput));
     let query = db.collection('fests').doc();
@@ -230,7 +237,7 @@ function createFest(root, params) {
         };
       });
   });
-};
+}
 
 const toggleFest = (root, params) => {
   let {token} = params.viewer;
@@ -246,7 +253,7 @@ const toggleFest = (root, params) => {
      return {
        status_code: 420,
        errors: 'Unauthorized'
-     }
+     };
     }
     let query = db.collection('fests').doc(params.ID);
     return query.get()
@@ -337,21 +344,27 @@ const verify = (root, params)=>{
         errors: message
       };
     }
-    return db.collection('users').doc(decoded.email)
-      .update({isVerified: true})
-      .then(()=>{
-        return {
-          status_code: 200,
-          errors: null
-        };
-      }).catch(err => {
-      console.log(err);
-      console.log(err.code);
-      return{
-        status_code: 400,
-        errors: err.message
+    if(decoded.code === 1)
+      return db.collection('users').doc(decoded.email)
+        .update({isVerified: true})
+        .then(()=>{
+          return {
+            status_code: 200,
+            errors: null
+          };
+        }).catch(err => {
+          console.log(err);
+          console.log(err.code);
+          return{
+            status_code: 400,
+            errors: err.message
+          };
+        });
+    else if(decoded.code === 2)
+      return {
+        status_code: 200,
+        errors: null
       };
-    });
   });
 };
 
@@ -469,7 +482,7 @@ function updateAttendance(root, params) {
     });
 }
 
-const removeFest = (root, params) => {
+function removeFest(root, params) {
   let {token} = params.viewer;
 
   return jwt.verify(token, 'secret', (err, decoded) => {
@@ -502,7 +515,96 @@ const removeFest = (root, params) => {
       };
     });
   });
-};
+}
+
+function changePassword(root, params) {
+  if (params.option === 1)
+  {
+    let token = jwt.sign({email: params.email, code: 2}, 'emailSecret');
+    let users = db.collection('users').doc(params.email);
+    return users.get()
+      .then((doc) => {
+        if (!doc.exists) {
+          return {
+            status_code: 420,
+            errors: "user does not exist"
+          };
+        }
+        else {
+          return doc.data();
+        }
+      })
+      .then((dat) => {
+        return users.set({'pchange': token}, {merge: true})
+          .then(() => {
+            let email_details = {
+              to: params.email,
+              subject: 'Password change',
+              text: 'Password change',
+            };
+            sendVerification(dat, token, email_details);
+            return {
+              status_code: 200,
+              errors: null
+            };
+          }).catch((err) => {
+           return {
+             status_code: 400,
+             errors: err.message
+           };
+        });
+      });
+  }
+  else if(params.option === 2) {
+    let {token} = params.viewer;
+    return jwt.verify(token, 'emailSecret', (err, decoded) => {
+      if (err) {
+        let message = formatErrors(err);
+        return {
+          status_code: 420,
+          errors: message
+        };
+      }
+      let users = db.collection('users').doc(decoded.email);
+      return users.get()
+        .then((doc) => {
+          if(!doc.exists){
+            return {
+              status_code: 400,
+              errors: 'Something went wrong'
+            };
+          }
+          else{
+            return doc.data();
+          }
+        }).then((dat) => {
+        if(dat.pchange === token){
+          let password = bcrypt.hashSync(params.password, 10);
+          return users.update({password: password,
+            pchange: FieldValue.delete()})
+            .then(() => {
+              return {
+                status_code: 200,
+                errors: null
+              };
+            }).catch((err) => {
+              return {
+                status_code: 400,
+                errors: err.message
+              };
+            });
+        }
+        else {
+          return {
+            status_code: 400,
+            errors: 'Token is Invalid'
+          };
+        }
+      });
+    });
+  }
+}
+
 module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
@@ -514,5 +616,6 @@ module.exports = {
   disableQr: disableQr,
   updateAttendance: updateAttendance,
   verify: verify,
-  removeFest: removeFest
+  removeFest: removeFest,
+  changePassword: changePassword
 };

@@ -15,26 +15,26 @@ function renderTemplate(message) {
   return data;
 }
 
-function constructMessage(to_email, message) {
+function constructMessage(email_details, message) {
   let data = renderTemplate(message);
 
-  console.log(to_email);
+  console.log(email_details);
   return {
-    to: to_email,
-    from: 'onimusha702@gmail.com',
-    subject: 'Verify your account',
-    text: 'Verify signup to activate your account',
+    to: email_details.to,
+    from: 'gdgvitvellore@gmail.com',
+    subject: email_details.subject,
+    text: email_details.text,
     html: data
   };
 }
 
-function sendSignUpVerificationMail(userData, token) {
+function sendVerificationMail(userData, token, email_details) {
   // TODO verification route
-  userData.link = 'http://localhost:3000/verify' + token;
-  let construct = constructMessage(userData.email, userData);
+  userData.link = 'http://localhost:3000/verify/' + token;
+  let construct = constructMessage(email_details, userData);
 
   return sgMail.send(construct)
-    .then(_ => {
+    .then(() => {
       console.log('Signup verification email sent');
     }).catch(err => {
       console.log('Error sending verification email ');
@@ -42,4 +42,4 @@ function sendSignUpVerificationMail(userData, token) {
     });
 }
 
-module.exports = sendSignUpVerificationMail;
+module.exports = sendVerificationMail;
