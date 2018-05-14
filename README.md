@@ -6,7 +6,7 @@ The backend system for projectX powered by graphql
 #### Create a fest
 ```
 mutation festcreate{
-  createFest(viewer:{token: <token>}, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,RSVP: <empty list>,attendance : <empty list>,feedback: <empty list>}){
+  createFest(viewer:{token: <token>}, festInput:{name: <string> ,venue: <string>,tags: <list of string>,description: <string>,speakers: <list of strings>,contact: <list of string>,link: <list of string>,isActive: <bool>,RSVP: <empty list>,attendance : <empty list>,feedback: <empty list>,fromDate: <ISO date string>,toDate: <ISO date string>}){
     status_code
     errors
     fest{
