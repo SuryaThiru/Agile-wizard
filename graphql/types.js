@@ -59,8 +59,8 @@ let registerResponse = new GraphQLObjectType({
 let feedback = new GraphQLObjectType({
     name: 'feedback',
     fields: {
-        email: {type: GraphQLString},
-        response: {type: GraphQLString}
+        email: {type: new GraphQLNonNull(GraphQLString)},
+        response: {type: new GraphQLNonNull(GraphQLString)}
     }
 });
 

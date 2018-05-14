@@ -151,6 +151,16 @@ mutation disableQR {
 }
 ```
 
+#### Add a feedback
+ ```$xslt
+ mutation addfeedback {
+   addFeedback(festID: <string>, viewer:{token: <token>}, feedback: <string>) {
+     status_code
+     errors
+   }
+ }
+ ```
+
 ### Contributing
 * don't push to master directly
 * use jshint to check linting issues (use the .jshrc provided in the repo) or run `npm run lint`

@@ -412,6 +412,7 @@ function disableQr(root, params) {
 
 const verify = (root, params)=>{
   let {token} = params.viewer;
+
   return jwt.verify(token, 'emailSecret', (err, decoded) => {
     if (err) {
       let message = formatErrors(err);
@@ -446,6 +447,7 @@ const verify = (root, params)=>{
 
 // function updateAttendance(userDoc, festId, verificationCode) {
 function updateAttendance(root, params) {
+  // TODO modify update attendance
   // let userDoc = db.collection('users').doc(params.user_email);
   let festDoc = db.collection('fests').doc(params.festID);
   // let verificationCode = params.code;
@@ -556,6 +558,57 @@ function updateAttendance(root, params) {
   //     }
   //   });
     });
+}
+
+function addFeedback(root, params) {
+  let {token} = params.viewer;
+
+  return jwtwrapper(token, (decoded) => {
+    if (decoded.auth_level <= 1) {
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      };
+    }
+
+    let query = db.collection('fests').doc(params.festID);
+    return query.get()
+      .then(doc => {
+        if (!doc.exists) {
+          return {
+            status_code: 420,
+            errors: "Invalid ID."
+          };
+        }
+
+        let data = doc.data();
+        data.feedback = data.feedback || [];
+        data.feedback.push({
+          email: decoded.email,
+          response: params.feedback
+        });
+
+        return query.set(data)
+          .then(() => {
+            return {
+              status_code: 200,
+              errors: null
+            };
+          })
+          .catch(err => {
+            return {
+              status_code: 400,
+              errors: err.message
+            };
+          });
+      })
+      .catch(err => {
+        return {
+          status_code: 400,
+          errors: err.message
+        };
+      });
+  });
 }
 
 function removeFest(root, params) {
@@ -695,5 +748,6 @@ module.exports = {
   updateAttendance: updateAttendance,
   verify: verify,
   removeFest: removeFest,
-  changePassword: changePassword
+  changePassword: changePassword,
+  addFeedback: addFeedback
 };

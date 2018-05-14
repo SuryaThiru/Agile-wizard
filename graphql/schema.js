@@ -7,7 +7,8 @@ const {
   GraphQLString,
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLInt
+  GraphQLInt,
+  GraphQLNonNull
 } = require('graphql');
 
 const {
@@ -40,7 +41,8 @@ const {
   updateAttendance,
   verify,
   removeFest,
-  changePassword
+  changePassword,
+  addFeedback
 } = require('./resolvers');
 
 
@@ -140,6 +142,15 @@ let mutationType = new GraphQLObjectType({
         code: {type: GraphQLString}
       },
       resolve: updateAttendance
+    },
+    addFeedback: {
+      type: generalResponse,
+      args: {
+        festID: {type: new GraphQLNonNull(GraphQLString)},
+        viewer: {type: new GraphQLNonNull(viewerInput)},
+        feedback: {type: new GraphQLNonNull(GraphQLString)}
+      },
+      resolve: addFeedback
     },
     verify: {
       type: generalResponse,
