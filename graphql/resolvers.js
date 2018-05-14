@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const {
+  enableQR,
+  disableQR
+} = require('./qr/qrloop');
 const fire = require('./db');
-const qrloop = require('./qr/qrloop');
 const sendVerification = require('./email/signup');
 const jwtwrapper = require('./jwtwrapper');
 const db = fire();
@@ -22,7 +25,7 @@ function findUser(root, params) {
       return {
         status_code: 420,
         errors: 'Unauthorized'
-      }
+      };
     }
     let {email} = decoded;
 
@@ -60,6 +63,7 @@ function getUserFeed(root, params) {
       .then(snapshot => {
         if (snapshot.empty) {
           console.log('no events');
+
           return {
             status_code: 420,
             errors: 'No events currently.',
@@ -285,29 +289,50 @@ const toggleFest = (root, params) => {
   });
 };
 
-const enableQr = (root, params) => {
+function enableQr(root, params) {
   let {token} = params.viewer;
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if (err) {
-      let message = formatErrors(err);
-      return {
-        status_code: 420,
-        errors: message
-      };
-    }
+
+  return jwtwrapper(token, (decoded) => {
+    let status = enableQR(params.festID);
+
     if (decoded.auth_level<=2){
       return {
         status_code: 420,
         errors: 'Unauthorized'
       };
     }
-    qrloop(params.ID, params.timelimit, 5);
+
+    if (status.code === 1)
+      return {
+        status_code: 420,
+        errors: status.status
+      };
+
     return {
       status_code: 200,
-      errors: 'qrcode generation initiated'
+      errors: status.status
     };
   });
-};
+}
+
+function disableQr(root, params) {
+  let {token} = params.viewer;
+
+  return jwtwrapper(token, (decoded) => {
+    let status = disableQR(params.festID);
+
+    if (status.code === 1)
+      return {
+        flag: false,
+        errors: status.status
+      };
+
+    return {
+      flag: true,
+      errors: status.status
+    };
+  });
+}
 
 const verify = (root, params)=>{
   let {token} = params.viewer;
@@ -488,7 +513,7 @@ function removeFest(root, params) {
         status_code: 400,
         errors: message
       };
-    })
+    });
   });
 }
 
@@ -588,6 +613,7 @@ module.exports = {
   createFest: createFest,
   toggleFest: toggleFest,
   enableQr: enableQr,
+  disableQr: disableQr,
   updateAttendance: updateAttendance,
   verify: verify,
   removeFest: removeFest,

@@ -101,6 +101,27 @@ mutation removeFest{
   }
 }
 ```
+
+#### Enable the qr generator 
+```$xslt
+mutation enableQR {
+  enableQr(festID: <string>, viewer:{token: <token>}) {
+    status_code
+    errors
+  }
+}
+```
+
+#### Disable the qr generator 
+```$xslt
+mutation disableQR {
+  disableQr(festID: <string>, viewer:{token: <token>}) {
+    status_code
+    errors
+  }
+}
+```
+
 ### Contributing
 * don't push to master directly
 * use jshint to check linting issues (use the .jshrc provided in the repo) or run `npm run lint`

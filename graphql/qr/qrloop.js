@@ -1,24 +1,9 @@
 const QRcode = require('qrcode');
 const crypto = require('crypto');
-const db = require('../db');
+const db = require('../db')();
 
-function qrLoop(festID, timelimit, updateInterval) {
-  let doc = db.collection('fests').doc(festID);
-  let ct = new CountDownTimer(timelimit);
-
-  let timer = setInterval(() => {
-    if (!ct.isTimeUp()) {
-      updateqrURL(doc, timer, festID);  // I HATE YOU JS!!!
-      console.log('starting qr loop');
-    }
-    else {
-      clearInterval(timer);
-      clearqrURL(doc);
-
-      console.log('ending qr loop');
-    }
-  }, updateInterval * 1000);
-}
+const updateInterval = 10; // udpate every few sec
+let festsBuffer = {};
 
 function updateqrURL(doc, timer, festID) {
   let id = crypto.randomBytes(8).toString('hex');
@@ -26,6 +11,7 @@ function updateqrURL(doc, timer, festID) {
     festID: festID,
     id: id
   };
+
   return getQR(JSON.stringify(data))
     .then(url => {
       // update DB
@@ -57,21 +43,73 @@ function clearqrURL(doc) {
     .catch(console.log);
 }
 
-function CountDownTimer(minutes) {
-  // object to countdown minutes
-  this.startTime = new Date(); // start on construction
-  this.countFrom = minutes;
-
-  this.isTimeUp = function () {
-    let currentTime = new Date();
-    let diff = (currentTime - this.startTime) / (1000 * 60);
-    return diff > this.countFrom;
-  };
-}
-
 function getQR(value) {
   // returns a promise that resolves to a data url
   return QRcode.toDataURL(value);
 }
 
-module.exports = qrLoop;
+function enableQR(festId) {
+  let doc = db.collection('fests').doc(festId);
+
+  if (festsBuffer[festId])
+    return {
+      status: 'qr loop already running'
+    };
+
+  return doc.get()
+    .then(dat => {
+        if (!dat.exists) {
+          return {
+            status: 'fest is not currently active'
+          };
+        }
+
+        if (!festsBuffer[festId]) {
+          let timer = setInterval(() => {
+            updateqrURL(doc, timer, festId);
+          }, updateInterval * 1000);
+
+          festsBuffer[festId] = timer;
+
+          console.log('starting qr loop');
+          console.log(Object.keys(festsBuffer));
+
+          return {
+            status: 'qr loop initiated'
+          };
+        }
+      })
+    .catch(err => {
+      console.log(err);
+      return {
+        status: err.message
+      };
+    });
+}
+
+function disableQR(festId) {
+  let doc = db.collection('fests').doc(festId);
+
+  if (!festsBuffer[festId])
+    return {
+      code: 1,
+      status: 'qr loop not running to stop'
+    };
+
+  clearInterval(festsBuffer[festId]);
+  clearqrURL(doc);
+  delete festsBuffer[festId];
+
+  console.log('stopped qr loop for ' + festId);
+
+  return {
+    code: 0,
+    status: 'stopped qr loop'
+  };
+}
+
+
+module.exports = {
+  enableQR: enableQR,
+  disableQR: disableQR
+};
