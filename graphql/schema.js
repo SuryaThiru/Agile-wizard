@@ -171,8 +171,7 @@ let mutationType = new GraphQLObjectType({
     removeFest: {
       type: generalResponse,
       args: {
-        festID: {type: GraphQLString},
-        viewer: {type: viewerInput}
+        festID: {type: GraphQLString}
       },
       resolve: removeFest
     },

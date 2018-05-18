@@ -78,6 +78,7 @@ mutation auth{
   authenticate(email: <string>, password: <string>){
     status_code
     errors
+    auth_level
     user{
       fname
       lname

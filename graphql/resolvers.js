@@ -172,8 +172,7 @@ function authenticate(root, params) {
               errors: null,
               user: dat,
               token: jwt.sign({email: email,
-                auth_level: dat.auth_level}, 'secret'),
-              auth_level: dat.auth_level
+                auth_level: dat.auth_level}, 'secret')
               };
             }
             else {
@@ -657,31 +656,36 @@ function addRSVP(root, params) {
   });
 }
 
-function removeFest(root, params) {
-  let {token} = params.viewer;
 
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if (err) {
-      let message = formatErrors(err);
+function removeFest(root, params, {user, errs}) {
+  let {festID} = params;
+  console.log(user);
+  if (!user){
+    if(errs){
       return {
         status_code: 420,
-        errors: message
-      };
+        errors: errs
+      }
     }
-    if (decoded.auth_level<=2){
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
+    return {
+      status_code: 420,
+      errors: 'Not authenticated'
+    };
+  }
+  if (user.auth_level<=2){
+    return {
+      status_code: 420,
+      errors: 'You are not authenticated'
+    };
+  }
+  let query = db.collection('fests').doc(festID);
+  return query.delete()
+    .then(()=>{
+      console.log("Fest successfully deleted!");
+      return{
+        status_code: 200,
+        errors: null
       };
-    }
-    let query = db.collection('fests').doc(params.festID);
-    return query.delete()
-      .then(()=>{
-        console.log("Fest successfully deleted!");
-        return{
-          status_code: 200,
-          errors: null
-        };
     }).catch((err) => {
       let message = formatErrors(err);
       return {
@@ -689,7 +693,6 @@ function removeFest(root, params) {
         errors: message
       };
     });
-  });
 }
 
 function changePassword(root, params) {
