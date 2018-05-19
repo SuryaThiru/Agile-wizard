@@ -4,19 +4,39 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const graphqlHTTP = require('express-graphql');
 const {schema} = require('./graphql/schema');
-
+const jwt = require('express-jwt');
+const auth_error = (err, req, res, next) => {
+  // console.log(err);
+  if(err.name === 'UnauthorizedError'){
+    req.errs = 'Invalid Token';
+  }
+  else{
+    req.errs = null;
+  }
+  next();
+};
+const auth = jwt({
+  secret: 'secret',
+  credentialsRequired: false
+});
 
 let app = express();
 
-app.use(logger('dev'));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
-app.use('/', graphqlHTTP({
+app.use('/', auth,auth_error,graphqlHTTP(req =>({
   schema: schema,
-  graphiql: true
-}));
+  graphiql: true,
+  context:{
+    user: req.user,
+    errs: req.errs
+  }
+}))
+);
+app.use(logger('dev'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

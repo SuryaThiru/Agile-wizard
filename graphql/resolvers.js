@@ -17,18 +17,10 @@ const {
 
 
 // Query Resolvers
-function findUser(root, params) {
-  let {token} = params.viewer;
+function findUser(_, params, {user, errs}) {
 
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level<=2){
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-    let {email} = decoded;
-
+  return jwtwrapper(user, errs, 2, () => {
+    let {email} = user;
     return db.collection("users").doc(email).get()
       .then((doc) => {
         if(!doc.exists) {
@@ -39,7 +31,6 @@ function findUser(root, params) {
           };
         }
         else {
-          // console.log(doc.data());
           return doc.data();
         }})
       .then((dat)=>{
@@ -52,10 +43,8 @@ function findUser(root, params) {
   });
 }
 
-function getUserFeed(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
+function getUserFeed(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, -1, () => {
     let Query = db.collection('fests').where('isActive', '==', true);
     let docList = [];
 
@@ -84,9 +73,10 @@ function getUserFeed(root, params) {
           };
         }
       }).catch(err => {
+        let message = formatErrors(err);
         return {
           status_code: 400,
-          errors: err.message,
+          errors: message,
           feed: null
         };
       });
@@ -172,8 +162,7 @@ function authenticate(root, params) {
               errors: null,
               user: dat,
               token: jwt.sign({email: email,
-                auth_level: dat.auth_level}, 'secret'),
-              auth_level: dat.auth_level
+                auth_level: dat.auth_level}, 'secret')
               };
             }
             else {
@@ -206,18 +195,9 @@ function authenticate(root, params) {
     });
 }
 
-function createFest(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level<=2){
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-
-    let festData = JSON.parse(JSON.stringify(params.festInput));
+function createFest(_, {festInput}, {user, errs}) {
+  return jwtwrapper(user, errs, 2, () => {
+    let festData = JSON.parse(JSON.stringify(festInput));
     let query = db.collection('fests').doc();
 
     return query.create(festData)
@@ -233,9 +213,8 @@ function createFest(root, params) {
       }).catch((err)=>{
         console.log("LOG THIS CREATEFEST" + err);
         let message = formatErrors(err);
-
         return {
-          status_code: 420,
+          status_code: 400,
           errors: message,
           fest: null
         };
@@ -243,19 +222,11 @@ function createFest(root, params) {
   });
 }
 
-function editFest(root, params) {
-  let {token} = params.viewer;
+function editFest(_, {festInput, ID}, {user, errs}) {
 
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level <= 2) {
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-
-    let festData = JSON.parse(JSON.stringify(params.festInput));
-    let festId = params.ID;
+  return jwtwrapper(user, errs, 2, () => {
+    let festData = JSON.parse(JSON.stringify(festInput));
+    let festId = ID;
     let query = db.collection('fests').doc(festId);
 
     return query.update(festData)
@@ -272,7 +243,6 @@ function editFest(root, params) {
       .catch(err => {
         console.log('log edit fest' + err);
         let message = formatErrors(err);
-
         return {
           status_code: 420,
           errors: message,
@@ -282,56 +252,15 @@ function editFest(root, params) {
   });
 }
 
-function deleteFest(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level <= 2) {
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-
-    let festId = params.ID;
-    let query = db.collection('fests').doc(festId);
-
-    return query.delete()
-      .then(() => {
-        return{
-          status_code: 200,
-          errors: null
-        };
-      })
-      .catch(err => {
-        console.log('log edit fest' + err);
-        let message = formatErrors(err);
-
-        return {
-          status_code: 420,
-          errors: message
-        };
-      });
-  });
-}
-
-const toggleFest = (root, params) => {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level<=2){
-     return {
-       status_code: 420,
-       errors: 'Unauthorized'
-     };
-    }
-    let query = db.collection('fests').doc(params.ID);
+const toggleFest = (_, {ID}, {user,errs}) => {
+  return jwtwrapper(user, errs, 2, () => {
+    let query = db.collection('fests').doc(ID);
     return query.get()
       .then((doc)=>{
         if(!doc.exists){
           return{
             status_code: 420,
-            errors: "Invalid ID."
+            errors: "Invalid ID"
           };
         }
 
@@ -343,17 +272,17 @@ const toggleFest = (root, params) => {
               errors: null
             };
           }).catch(err => {
-            console.log(err);
-            console.log(err.code);
+            let message = formatErrors(err);
             return {
               status_code: 400,
-              errors: err.message
+              errors: message
             };
         });
       }).catch(err => {
+        let message = formatErrors(err);
         return {
           status_code: 400,
-          errors: err.message
+          errors: message
         };
     });
   });
@@ -424,11 +353,10 @@ const verify = (root, params)=>{
             errors: null
           };
         }).catch(err => {
-          console.log(err);
-          console.log(err.code);
+          let message = formatErrors(err);
           return{
             status_code: 400,
-            errors: err.message
+            errors: message
           };
         });
     else if(decoded.code === 2)
@@ -440,21 +368,13 @@ const verify = (root, params)=>{
 };
 
 // function updateAttendance(userDoc, festId, verificationCode) {
-function updateAttendance(root, params) {
+function updateAttendance(_, {festID,code}, {user,errs}) {
   // TODO modify update attendance
   // let userDoc = db.collection('users').doc(params.user_email);
-  let festDoc = db.collection('fests').doc(params.festID);
+  let festDoc = db.collection('fests').doc(festID);
   // let verificationCode = params.code;
-  let {token} = params.viewer;
 
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level<=1){
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-
+  return jwtwrapper(user, errs, 1, (user) => {
     return festDoc.get()
       .then((doc)=>{
         if(!doc.exists){
@@ -465,14 +385,14 @@ function updateAttendance(root, params) {
         }
 
         let record = {
-          email: decoded.email,
+          email: user.email,
           timestamp: Math.floor(new Date() / 1000)  // UNIX epoch
         };
 
         console.log(record);
         let dat = doc.data();
         console.log(dat.QRval);
-        if(dat.QRval === params.code){
+        if(dat.QRval === code){
           let records = dat.attendance || [];
           records.push(record);
 
@@ -484,9 +404,10 @@ function updateAttendance(root, params) {
               };
             })
             .catch(err => {
+              let message = formatErrors(err);
               return {
                 status_code: 400,
-                errors: err.message
+                errors: message
               };
             });
         }
@@ -497,79 +418,18 @@ function updateAttendance(root, params) {
           };
         }
       }).catch(err => {
+        let message = formatErrors(err);
         return {
           status_code: 400,
-          errors: err.message
+          errors: message
         };
       });
-  // return Promise.all([userDoc.get(), festDoc.get()])
-  //   .then(vals => {
-  //     let userData = vals[0];
-  //     let festData = vals[1];
-  //
-  //     if (!userData.exists) {
-  //       return {
-  //         flag: false,
-  //         errors: "user not found"
-  //       }
-  //     }
-  //     else if (!festData.exists) {
-  //       return {
-  //         flag: false,
-  //         errors: "fest not found"
-  //       }
-  //     }
-  //
-  //     // verify with qr value in the DB
-  //     if (verificationCode === festData.data().QRval) {
-  //       // TODO update attendance better to the list
-  //       let record = {
-  //         email: params.user_email,
-  //         timestamp: Math.floor(new Date() / 1000)  // UNIX epoch
-  //       };
-  //       let records = festData.data().attendance;
-  //       records.push(record);
-  //
-  //       festDoc.set(
-  //         {attendance: records},
-  //         {merge: true}
-  //       );
-  //     }
-  //     else {
-  //       return {
-  //         flag: false,
-  //         errors: 'invalid verification code'
-  //       }
-  //     }
-  //
-  //     return {
-  //       flag: true,
-  //       errors: 'attendance updated'
-  //     }
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //
-  //     return {
-  //       flag: false,
-  //       errors: err
-  //     }
-  //   });
     });
 }
 
-function addFeedback(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level <= 1) {
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-
-    let query = db.collection('fests').doc(params.festID);
+function addFeedback(_, {festID,feedback}, {user,errs}) {
+  return jwtwrapper(user, errs, 1, (user) => {
+    let query = db.collection('fests').doc(festID);
     return query.get()
       .then(doc => {
         if (!doc.exists) {
@@ -582,8 +442,8 @@ function addFeedback(root, params) {
         let data = doc.data();
         data.feedback = data.feedback || [];
         data.feedback.push({
-          email: decoded.email,
-          response: params.feedback
+          email: user.email,
+          response: feedback
         });
 
         return query.update({feedback: data.feedback})
@@ -594,45 +454,45 @@ function addFeedback(root, params) {
             };
           })
           .catch(err => {
+            let message = formatErrors(err);
             return {
               status_code: 400,
-              errors: err.message
+              errors: message
             };
           });
       })
       .catch(err => {
+        let message = formatErrors(err);
         return {
           status_code: 400,
-          errors: err.message
+          errors: message
         };
       });
   });
 }
 
-function addRSVP(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
-    if (decoded.auth_level <= 1) {
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-
-    let query = db.collection('fests').doc(params.festID);
+function addRSVP(_, {festID}, {user,errs}) {
+  return jwtwrapper(user, errs, 1, (user) => {
+    let query = db.collection('fests').doc(festID);
     return query.get()
       .then(doc => {
         if (!doc.exists) {
           return {
             status_code: 420,
-            errors: "Invalid fest ID."
+            errors: 'Invalid fest ID'
           };
         }
-
         let data = doc.data();
+        if(data.RSVP !== [] && data.RSVP!==null){
+          if(data.RSVP.includes(user.email)){
+            return {
+              status_code: 420,
+              errors: 'already rsvped'
+            }
+          }
+        }
         data.RSVP = data.RSVP || [];
-        data.RSVP.push(decoded.email);
+        data.RSVP.push(user.email);
 
         return query.update({RSVP: data.RSVP})
           .then(() => {
@@ -642,46 +502,33 @@ function addRSVP(root, params) {
             };
           })
           .catch(err => {
+            let message = formatErrors(err);
             return {
               status_code: 400,
-              errors: err.message
+              errors: message
             };
           });
       })
       .catch(err => {
+        let message = formatErrors(err);
         return {
           status_code: 400,
-          errors: err.message
+          errors: message
         };
       });
   });
 }
 
-function removeFest(root, params) {
-  let {token} = params.viewer;
-
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if (err) {
-      let message = formatErrors(err);
-      return {
-        status_code: 420,
-        errors: message
+function removeFest(_, {festID}, {user, errs}) {
+  return jwtwrapper(user, errs, 2, ()=>{
+  let query = db.collection('fests').doc(festID);
+  return query.delete()
+    .then(()=>{
+      console.log("Fest successfully deleted!");
+      return{
+        status_code: 200,
+        errors: null
       };
-    }
-    if (decoded.auth_level<=2){
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
-    let query = db.collection('fests').doc(params.festID);
-    return query.delete()
-      .then(()=>{
-        console.log("Fest successfully deleted!");
-        return{
-          status_code: 200,
-          errors: null
-        };
     }).catch((err) => {
       let message = formatErrors(err);
       return {
@@ -689,7 +536,7 @@ function removeFest(root, params) {
         errors: message
       };
     });
-  });
+});
 }
 
 function changePassword(root, params) {
@@ -787,7 +634,6 @@ module.exports = {
   authenticate: authenticate,
   createFest: createFest,
   editFest: editFest,
-  deleteFest: deleteFest,
   toggleFest: toggleFest,
   enableQr: enableQr,
   disableQr: disableQr,

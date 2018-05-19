@@ -2,30 +2,26 @@
   module wraps the jwt verification methods
    used in the responses of the graphql requests
  */
-const {formatErrors} = require('./utils');
-const jwt = require('jsonwebtoken');
-
-
-function jwtErrorHandler(err) {
-  console.log('jwt error: ' + err);
-  let message = formatErrors(err);
-
-  return {
-    status_code: 420,
-    errors: message,
-    fest: null
-  };
-}
-
-function jwtVerify(token, callback) {
-  // TODO decoded token handler
-  return jwt.verify(token, 'secret', (err, decoded) => {
-    if (err) {
-      return jwtErrorHandler(err);
+function jwtVerify(user,errs,auth_level,callback) {
+  if (!user){
+    if(errs){
+      return {
+        status_code: 420,
+        errors: errs
+      }
     }
-
-    return callback(decoded);
-  });
+    return {
+      status_code: 420,
+      errors: 'Not authenticated'
+    };
+  }
+  if (user.auth_level<=auth_level){
+    return {
+      status_code: 420,
+      errors: 'Unauthorized'
+    };
+  }
+    return callback(user);
 }
 
 module.exports = jwtVerify;

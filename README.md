@@ -51,16 +51,6 @@ mutation toggle{
 }
 ```
 
-#### Delete a fest
-```
-mutation delete{
-  deleteFest(viewer:{token: <token>}, ID: <string festID>){
-    status_code
-    errors
-  }
-}
-```
-
 #### Signup
 ```
 mutation first {
@@ -78,6 +68,7 @@ mutation auth{
   authenticate(email: <string>, password: <string>){
     status_code
     errors
+    auth_level
     user{
       fname
       lname
@@ -108,7 +99,7 @@ query finduser {
 #### get user feed i.e. fests/events that are active
 ```
 query feed{
-  getFeed(viewer:{token: <token>}){
+  getFeed{
     status_code
     errors
     feed{
@@ -124,7 +115,7 @@ query feed{
 #### Remove a fest / future: Restricted by authorization level
 ```
 mutation removeFest{
-  removeFest(festID: <string>,viewer:{token: <token>}) {
+  removeFest(festID: <string>) {
     status_code
     errors
   }
@@ -154,7 +145,7 @@ mutation disableQR {
 #### Update user attendance 
 ```$xslt
 mutation attendance {
-  updateAttendance(festID: <string>, viewer:{token: <token>}, code: <string>) {
+  updateAttendance(festID: <string>, code: <string>) {
     status_code
     errors
   }
@@ -164,7 +155,7 @@ mutation attendance {
 #### Add a feedback
  ```$xslt
  mutation addfeedback {
-   addFeedback(festID: <string>, viewer:{token: <token>}, feedback: <string>) {
+   addFeedback(festID: <string>, feedback: <string>) {
      status_code
      errors
    }

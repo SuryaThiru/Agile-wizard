@@ -20,7 +20,8 @@ let userType = new GraphQLObjectType({
     reg: {type: GraphQLString},
     password: {type: new GraphQLNonNull(GraphQLString)},
     google: {type: new GraphQLNonNull(GraphQLBoolean)},
-    gender: {type: new GraphQLNonNull(GraphQLString)}
+    gender: {type: new GraphQLNonNull(GraphQLString)},
+    auth_level: {type: new GraphQLNonNull(GraphQLString)}
   }
 });
 
@@ -31,8 +32,7 @@ let authResponse = new GraphQLObjectType({
     status_code: {type: GraphQLInt},
     errors: {type: GraphQLString},
     user: {type: userType},
-    token: {type: GraphQLString},
-    auth_level: {type: GraphQLInt}
+    token: {type: GraphQLString}
   }
 });
 
