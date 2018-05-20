@@ -34,7 +34,6 @@ const {
   authenticate,
   createFest,
   editFest,
-  deleteFest,
   toggleFest,
   enableQr,
   disableQr,
@@ -52,16 +51,10 @@ let queryType = new GraphQLObjectType({
   fields: {
     findUser: {
       type: queryResponse,
-      args: {
-        viewer: {type: viewerInput }
-      },
       resolve: findUser
     },
     getFeed: {
       type: feedResponse,
-      args: {
-        viewer: {type: viewerInput}
-      },
       resolve: getFeed
     }
   }
@@ -89,7 +82,6 @@ let mutationType = new GraphQLObjectType({
     createFest: {
       type: festResponse,
       args: {
-        viewer: {type: viewerInput},
         festInput: {type: festInput}
       },
       resolve: createFest
@@ -97,24 +89,14 @@ let mutationType = new GraphQLObjectType({
     editFest: {
       type: festResponse,
       args: {
-        viewer: {type: viewerInput},
         ID: {type: GraphQLString},
         festInput: {type: festEdit}
       },
       resolve: editFest
     },
-    deleteFest: {
-      type: generalResponse,
-      args: {
-        viewer: {type: viewerInput},
-        ID: {type: GraphQLString}
-      },
-      resolve: deleteFest
-    },
     toggleFest: {
       type: generalResponse,
       args: {
-        viewer: {type: viewerInput},
         ID: {type: GraphQLString}
       },
       resolve: toggleFest
@@ -139,7 +121,6 @@ let mutationType = new GraphQLObjectType({
       type: generalResponse,
       args: {
         festID: {type: new GraphQLNonNull(GraphQLString)},
-        viewer: {type: new GraphQLNonNull(viewerInput)},
         code: {type: new GraphQLNonNull(GraphQLString)}
       },
       resolve: updateAttendance
@@ -148,7 +129,6 @@ let mutationType = new GraphQLObjectType({
       type: generalResponse,
       args: {
         festID: {type: new GraphQLNonNull(GraphQLString)},
-        viewer: {type: new GraphQLNonNull(viewerInput)},
         feedback: {type: new GraphQLNonNull(GraphQLString)}
       },
       resolve: addFeedback
@@ -156,8 +136,7 @@ let mutationType = new GraphQLObjectType({
     addRSVP: {
       type: generalResponse,
       args: {
-        festID: {type: new GraphQLNonNull(GraphQLString)},
-        viewer: {type: new GraphQLNonNull(viewerInput)}
+        festID: {type: new GraphQLNonNull(GraphQLString)}
       },
       resolve: addRSVP
     },
@@ -171,8 +150,7 @@ let mutationType = new GraphQLObjectType({
     removeFest: {
       type: generalResponse,
       args: {
-        festID: {type: GraphQLString},
-        viewer: {type: viewerInput}
+        festID: {type: GraphQLString}
       },
       resolve: removeFest
     },

@@ -95,6 +95,7 @@ mutation auth{
   authenticate(email: <string>, password: <string>){
     status_code
     errors
+    auth_level
     user{
       fname
       lname
@@ -145,7 +146,7 @@ mutation disableQR {
 #### Update user attendance 
 ```$xslt
 mutation attendance {
-  updateAttendance(festID: <string>, viewer:{token: <token>}, code: <string>) {
+  updateAttendance(festID: <string>, code: <string>) {
     status_code
     errors
   }
@@ -165,7 +166,7 @@ mutation addRSVP {
 #### Add a feedback
  ```$xslt
  mutation addfeedback {
-   addFeedback(festID: <string>, viewer:{token: <token>}, feedback: <string>) {
+   addFeedback(festID: <string>, feedback: <string>) {
      status_code
      errors
    }
