@@ -3,6 +3,23 @@ The backend system for projectX powered by graphql
 
 ## API usage
 
+
+#### get user feed i.e. fests/events that are active
+```
+query feed{
+  getFeed(viewer:{token: <token>}){
+    status_code
+    errors
+    feed{
+      contact
+      description
+      name
+      speakers
+    }
+  }
+}
+```
+
 #### Create a fest
 ```
 mutation festcreate{
@@ -41,20 +58,20 @@ mutation festedit{
 }
 ```
 
-#### Change or toggle event to active or not
+#### Remove a fest / future: Restricted by authorization level
 ```
-mutation toggle{
-  toggleFest(viewer:{token: <token>}, ID: <string festID>){
+mutation removeFest{
+  removeFest(festID: <string>,viewer:{token: <token>}) {
     status_code
     errors
   }
 }
 ```
 
-#### Delete a fest
+#### Change or toggle event to active or not
 ```
-mutation delete{
-  deleteFest(viewer:{token: <token>}, ID: <string festID>){
+mutation toggle{
+  toggleFest(viewer:{token: <token>}, ID: <string festID>){
     status_code
     errors
   }
@@ -105,32 +122,6 @@ query finduser {
 }
 ```
 
-#### get user feed i.e. fests/events that are active
-```
-query feed{
-  getFeed(viewer:{token: <token>}){
-    status_code
-    errors
-    feed{
-      contact
-      description
-      name
-      speakers
-    }
-  }
-}
-```
-
-#### Remove a fest / future: Restricted by authorization level
-```
-mutation removeFest{
-  removeFest(festID: <string>,viewer:{token: <token>}) {
-    status_code
-    errors
-  }
-}
-```
-
 #### Enable the qr generator 
 ```$xslt
 mutation enableQR {
@@ -155,6 +146,16 @@ mutation disableQR {
 ```$xslt
 mutation attendance {
   updateAttendance(festID: <string>, viewer:{token: <token>}, code: <string>) {
+    status_code
+    errors
+  }
+}
+```
+
+#### Update add RSVP 
+```$xslt
+mutation addRSVP {
+  addRSVP(festID: <string>, viewer:{token: <token>}) {
     status_code
     errors
   }
