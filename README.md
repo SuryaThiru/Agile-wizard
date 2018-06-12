@@ -3,6 +3,7 @@ The backend system for projectX powered by graphql
 
 ## API usage
 
+For Every Query/Mutation that requires viewer:{token: <token>} remove viewer and set a bearer jwt token in the header.
 
 #### get user feed i.e. fests/events that are active
 ```
