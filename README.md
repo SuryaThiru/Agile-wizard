@@ -86,7 +86,6 @@ mutation first {
   createUser(input: {fname: <string>, lname: <string>, reg: <string>, email: <string>, phone: <string>, password: <string>, google: <bool>, gender: <string>}){
     status_code
     errors
-    token
   }
 }
 ```
