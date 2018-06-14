@@ -1,6 +1,8 @@
 # Agile-wizard
 The backend system for projectX powered by graphql
 
+route: https://project-lazarus.herokuapp.com/
+
 ## API usage
 
 
