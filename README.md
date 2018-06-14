@@ -5,6 +5,8 @@ route: https://project-lazarus.herokuapp.com/
 
 ## API usage
 
+For Every Query/Mutation that requires viewer:{token: <token>} remove viewer and set a bearer jwt token in the header.
+Do not set bearer token in the query/Mutation that do not require viewer.
 
 #### get user feed i.e. fests/events that are active
 ```
@@ -86,7 +88,6 @@ mutation first {
   createUser(input: {fname: <string>, lname: <string>, reg: <string>, email: <string>, phone: <string>, password: <string>, google: <bool>, gender: <string>}){
     status_code
     errors
-    token
   }
 }
 ```
