@@ -2,7 +2,7 @@ const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
 
 const sgApi = process.env['sendgrid'];
-
+console.log(sgApi);
 sgMail.setApiKey(sgApi);
 
 function renderTemplate(message) {
