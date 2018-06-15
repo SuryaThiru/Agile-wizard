@@ -31,7 +31,7 @@ function constructMessage(email_details, message) {
 
 function sendVerificationMail(userData, token, email_details) {
   // TODO verification route
-  userData.link = 'http://localhost:3000/verify/' + token;
+  userData.link = 'https://connectx.dscvit.com/verify/' + token;
   let construct = constructMessage(email_details, userData);
 
   return sgMail.send(construct)
