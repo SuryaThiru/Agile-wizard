@@ -21,7 +21,7 @@ function constructMessage(email_details, message) {
   console.log(email_details);
   return {
     to: email_details.to,
-    from: 'dscvitvellore@gmail.com',
+    from: 'noreply@dscvit.com',
     subject: email_details.subject,
     text: email_details.text,
     html: data
