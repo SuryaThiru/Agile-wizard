@@ -669,6 +669,7 @@ function changePassword(root, params) {
 
 function addBlog(_, {blogPost}, {user, errs}) {
   blogPost = JSON.parse(JSON.stringify(blogPost));
+  blogPost.date = (new Date()).toISOString();
 
   return jwtwrapper(user, errs, 2, () => {
     let query = db.collection('blogs').doc();

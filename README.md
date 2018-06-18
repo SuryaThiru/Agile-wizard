@@ -82,6 +82,54 @@ mutation toggle{
 }
 ```
 
+#### Post a blog
+```
+mutation addBlog {
+    addBlog(blogPost: {title: <string>, description: <string>, tags: <string?>, author: <string>, link: <string> }) {
+        status_code
+        errors
+        blog {
+            ID
+            title
+            date
+            description
+            tags
+            author
+            link
+        }
+    }
+}
+```
+
+#### Edit a blog
+```
+mutation editBlog {
+    editBlog(ID: <string>, blogPost: {title: <string?>, description: <string?>, tags: <string?>, author: <string?>, link: <string?> }) {
+        status_code
+        errors
+    }
+}
+```
+
+#### Get all blogs
+```
+query blogs {
+    getBlogs(count: <int>) {
+        errors,
+        status_code,
+        blogs {
+            ID
+            title
+            date
+            description
+            tags
+            author
+            link
+        }
+    }
+}
+```
+
 #### Signup
 ```
 mutation first {
