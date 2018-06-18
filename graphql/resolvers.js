@@ -83,6 +83,46 @@ function getUserFeed(_, params, {user, errs}) {
   });
 }
 
+function getBlogs(_, {count}, {user, errs}) {
+  return jwtwrapper(user, errs, -1, () => {
+    let Query = db.collection('blogs').limit(count);
+    let docList = [];
+
+    return Query.get()
+      .then(snapshot => {
+        if (snapshot.empty) {
+          console.log('no blogs');
+
+          return {
+            status_code: 420,
+            errors: 'No Blogs found.',
+            blogs: null
+          };
+        }
+        else {
+          snapshot.forEach(doc => {
+            let modifiedDoc = doc.data();
+            modifiedDoc.ID = doc.id;
+            docList.push(modifiedDoc);
+          });
+
+          return {
+            status_code: 200,
+            errors: null,
+            blogs: docList
+          };
+        }
+      }).catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message,
+          blogs: null
+        };
+      });
+  });
+}
+
 // Mutation Resolvers
 function createUser(root, params) {
   if(!validate(params.input.email)) {
@@ -210,7 +250,7 @@ function createFest(_, {festInput}, {user, errs}) {
           errors: null,
           fest: doc
         };
-      }).catch((err)=>{
+      }).catch((err) => {
         console.log("LOG THIS CREATEFEST" + err);
         let message = formatErrors(err);
         return {
@@ -333,7 +373,7 @@ function disableQr(root, params) {
   });
 }
 
-const verify = (root, params)=>{
+function verify(root, params) {
   let {token} = params.viewer;
 
   return jwt.verify(token, 'emailSecret', (err, decoded) => {
@@ -365,7 +405,7 @@ const verify = (root, params)=>{
         errors: null
       };
   });
-};
+}
 
 // function updateAttendance(userDoc, festId, verificationCode) {
 function updateAttendance(_, {festID,code}, {user,errs}) {
@@ -488,7 +528,7 @@ function addRSVP(_, {festID}, {user,errs}) {
             return {
               status_code: 420,
               errors: 'already rsvped'
-            }
+            };
           }
         }
         data.RSVP = data.RSVP || [];
@@ -627,6 +667,62 @@ function changePassword(root, params) {
   }
 }
 
+function addBlog(_, {blogPost}, {user, errs}) {
+  blogPost = JSON.parse(JSON.stringify(blogPost));
+
+  return jwtwrapper(user, errs, 2, () => {
+    let query = db.collection('blogs').doc();
+
+    return query.create(blogPost)
+      .then(() => {
+        let doc = blogPost;
+        doc.ID = query.id;
+
+        return {
+          status_code: 200,
+          errors: null,
+          blog: blogPost
+        };
+      })
+      .catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message,
+          blog: null
+        };
+      });
+  });
+}
+
+function editBlog(_, {ID, blogPost}, {user, errs}) {
+  blogPost = JSON.parse(JSON.stringify(blogPost));
+
+  return jwtwrapper(user, errs, 2, () => {
+    let query = db.collection('blogs').doc(ID);
+
+    return query.update(blogPost)
+      .then(() => {
+        let doc = blogPost;
+        doc.ID = query.id;
+
+        return {
+          status_code: 200,
+          errors: null,
+          blogPost: doc
+        };
+      })
+      .catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 420,
+          errors: message,
+          blogPost: null
+        };
+      });
+  });
+}
+
 module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
@@ -642,5 +738,8 @@ module.exports = {
   removeFest: removeFest,
   changePassword: changePassword,
   addFeedback: addFeedback,
-  addRSVP: addRSVP
+  addRSVP: addRSVP,
+  addBlog: addBlog,
+  editBlog: editBlog,
+  getBlogs: getBlogs
 };
