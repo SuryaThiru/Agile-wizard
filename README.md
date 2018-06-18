@@ -8,6 +8,19 @@ route: https://project-lazarus.herokuapp.com/
 For Every Query/Mutation that requires viewer:{token: <token>} remove viewer and set a bearer jwt token in the header.
 Do not set bearer token in the query/Mutation that do not require viewer.
 
+#### verify
+
+*(special case requires token to be given in body)*
+*(different secret)*
+```
+mutation ver{
+  verify(viewer:{token: <token>}){
+    status_code
+    errors
+  }
+}
+```
+
 #### get user feed i.e. fests/events that are active
 ```
 query feed{
