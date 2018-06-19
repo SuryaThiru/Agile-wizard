@@ -17,14 +17,18 @@ const {
   queryResponse,
   feedResponse,
   generalResponse,
-  festResponse
+  festResponse,
+  blogResponse,
+  blogsResponse
 } = require('./types');
 
 const {
   userInput,
   viewerInput,
   festInput,
-  festEdit
+  festEdit,
+  blogInput,
+  blogEditInput
 } = require('./inputs');
 
 const {
@@ -42,7 +46,10 @@ const {
   removeFest,
   changePassword,
   addFeedback,
-  addRSVP
+  addRSVP,
+  addBlog,
+  editBlog,
+  getBlogs
 } = require('./resolvers');
 
 
@@ -56,6 +63,13 @@ let queryType = new GraphQLObjectType({
     getFeed: {
       type: feedResponse,
       resolve: getFeed
+    },
+    getBlogs: {
+      type: blogsResponse,
+      args: {
+        count: {type: new GraphQLNonNull(GraphQLInt)}
+      },
+      resolve: getBlogs
     }
   }
 });
@@ -86,6 +100,13 @@ let mutationType = new GraphQLObjectType({
       },
       resolve: createFest
     },
+    removeFest: {
+      type: generalResponse,
+      args: {
+        festID: {type: GraphQLString}
+      },
+      resolve: removeFest
+    },
     editFest: {
       type: festResponse,
       args: {
@@ -100,6 +121,21 @@ let mutationType = new GraphQLObjectType({
         ID: {type: GraphQLString}
       },
       resolve: toggleFest
+    },
+    addBlog: {
+      type: blogResponse,
+      args: {
+        blogPost: {type: blogInput}
+      },
+      resolve: addBlog
+    },
+    editBlog: {
+      type: generalResponse,
+      args: {
+        ID: {type: GraphQLString},
+        blogPost: {type: blogEditInput}
+      },
+      resolve: editBlog
     },
     enableQr: {
       type: generalResponse,
@@ -146,13 +182,6 @@ let mutationType = new GraphQLObjectType({
         viewer: {type: viewerInput}
       },
       resolve: verify
-    },
-    removeFest: {
-      type: generalResponse,
-      args: {
-        festID: {type: GraphQLString}
-      },
-      resolve: removeFest
     },
     changePassword: {
       type: generalResponse,

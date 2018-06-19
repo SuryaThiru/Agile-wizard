@@ -99,6 +99,38 @@ let carpenterFeed = new GraphQLObjectType({
     }
 });
 
+// blogposts schema
+let blogPost = new GraphQLObjectType({
+  name: 'blogPost',
+  fields: {
+    ID: {type: new GraphQLNonNull(GraphQLString)},
+    title: {type: new GraphQLNonNull(GraphQLString)},
+    date: {type: new GraphQLNonNull(GraphQLString)}, // ISO string
+    description: {type: new GraphQLNonNull(GraphQLString)},
+    tags: {type: new GraphQLList(GraphQLString)},
+    author: {type: new GraphQLNonNull(GraphQLString)},
+    link: {type: new GraphQLNonNull(GraphQLString)}
+  }
+});
+
+let blogResponse = new GraphQLObjectType({
+  name: 'blogResponse',
+  fields: {
+    status_code: {type: GraphQLInt},
+    errors: {type: GraphQLString},
+    blog: {type: blogPost}
+  }
+});
+
+let blogsResponse = new GraphQLObjectType({
+  name: 'blogsResponse',
+  fields: {
+    status_code: {type: GraphQLInt},
+    errors: {type: GraphQLString},
+    blogs: {type: new GraphQLList(blogPost)}
+  }
+});
+
 // Response for querying fests collection/ getFeed query
 let feedResponse = new GraphQLObjectType({
     name: 'feedResponse',
@@ -132,5 +164,8 @@ module.exports = {
   authResponse: authResponse,
   feedResponse: feedResponse,
   generalResponse: generalResponse,
-  festResponse: festResponse
+  festResponse: festResponse,
+  blogPost: blogPost,
+  blogResponse: blogResponse,
+  blogsResponse: blogsResponse
 };

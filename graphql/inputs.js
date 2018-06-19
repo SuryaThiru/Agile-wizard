@@ -64,9 +64,35 @@ let festEdit = new GraphQLInputObjectType({
   }
 });
 
+// create blog type
+let blogInput = new GraphQLInputObjectType({
+  name: 'blogInput',
+  fields: {
+    title: {type: new GraphQLNonNull(GraphQLString)},
+    description: {type: new GraphQLNonNull(GraphQLString)},
+    tags: {type: new GraphQLList(GraphQLString)},
+    author: {type: new GraphQLNonNull(GraphQLString)},
+    link: {type: new GraphQLNonNull(GraphQLString)}
+  }
+});
+
+// edit blog type
+let blogEditInput = new GraphQLInputObjectType({
+  name: 'blogEditInput',
+  fields: {
+    title: {type: GraphQLString},
+    description: {type: GraphQLString},
+    tags: {type: new GraphQLList(GraphQLString)},
+    author: {type: GraphQLString},
+    link: {type: GraphQLString}
+  }
+});
+
 module.exports = {
   userInput: userInput,
   viewerInput: viewerInput,
   festInput: festInput,
-  festEdit: festEdit
+  festEdit: festEdit,
+  blogInput: blogInput,
+  blogEditInput: blogEditInput
 };
