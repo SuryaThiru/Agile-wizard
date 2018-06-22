@@ -75,7 +75,10 @@ let userFeed = new GraphQLObjectType({
     description: {type: new GraphQLNonNull(GraphQLString)},
     speakers: {type: new GraphQLList(GraphQLString)},
     contact: {type: new GraphQLList(GraphQLString)},
-    link: {type: new GraphQLList(GraphQLString)}
+    link: {type: new GraphQLList(GraphQLString)},
+    isActive: {type: GraphQLBoolean},
+    fromDate: {type: GraphQLString}, // ISO format eg: 2018-05-14T09:22:42.232Z
+    toDate: {type: GraphQLString}    // default date format in JS
   }
 });
 

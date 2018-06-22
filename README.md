@@ -28,10 +28,17 @@ query feed{
     status_code
     errors
     feed{
-      contact
-      description
+      ID
       name
+      venue
+      tags
+      description
       speakers
+      contact
+      link
+      isActive
+      fromDate
+      toDate
     }
   }
 }
