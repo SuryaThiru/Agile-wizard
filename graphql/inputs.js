@@ -21,6 +21,21 @@ let userInput = new GraphQLInputObjectType({
   }
 });
 
+// user edit form inputs
+let userEditInput = new GraphQLInputObjectType({
+  name: 'userEditInput',
+  fields: {
+    email: {type: new GraphQLNonNull(GraphQLString)},
+    fname: {type: GraphQLString},
+    lname: {type: GraphQLString},
+    phone: {type: GraphQLString},
+    reg: {type: GraphQLString},
+    password: {type: GraphQLString},
+    google: {type: GraphQLBoolean},
+    gender: {type: GraphQLString}
+  }
+});
+
 let viewerInput = new GraphQLInputObjectType({
   name: 'Viewer',
   fields: {
@@ -90,6 +105,7 @@ let blogEditInput = new GraphQLInputObjectType({
 
 module.exports = {
   userInput: userInput,
+  userEditInput: userEditInput,
   viewerInput: viewerInput,
   festInput: festInput,
   festEdit: festEdit,

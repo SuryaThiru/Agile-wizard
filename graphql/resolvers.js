@@ -168,6 +168,36 @@ function createUser(root, params) {
     });
 }
 
+function editUser(root, params, {user, errs}) {
+
+  return jwtwrapper(user, errs, 2, () => {
+    let userData = JSON.parse(JSON.stringify(params.user));
+
+    if (user.email !== userData.email)  // ensure the user is the one editing
+      return {
+        status_code: 420,
+        errors: 'Unauthorized'
+      };
+
+    let query = db.collection("users").doc(user.email);
+
+    return query.update(userData)
+      .then(_ => {
+        return{
+          status_code: 200,
+          errors: null
+        };
+      })
+      .catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 420,
+          errors: message
+        };
+      });
+  });
+}
+
 function authenticate(root, params) {
   let {password, email} = params;
 
@@ -728,6 +758,7 @@ module.exports = {
   findUser: findUser,
   getFeed: getUserFeed,
   createUser: createUser,
+  editUser: editUser,
   authenticate: authenticate,
   createFest: createFest,
   editFest: editFest,

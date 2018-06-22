@@ -153,6 +153,16 @@ mutation first {
 }
 ```
 
+#### Edit user profile
+```
+mutation edit {
+  editUser(input: {email: <string>, fname: <string?>, lname: <string?>, reg: <string?>, phone: <string?>, password: <string?>, google: <bool?>, gender: <string?>}){
+    status_code
+    errors
+  }
+}
+```
+
 #### Login universal for all
 ```
 mutation auth{
