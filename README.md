@@ -28,10 +28,17 @@ query feed{
     status_code
     errors
     feed{
-      contact
-      description
+      ID
       name
+      venue
+      tags
+      description
       speakers
+      contact
+      link
+      isActive
+      fromDate
+      toDate
     }
   }
 }
@@ -147,6 +154,16 @@ query blogs {
 ```
 mutation first {
   createUser(input: {fname: <string>, lname: <string>, reg: <string>, email: <string>, phone: <string>, password: <string>, google: <bool>, gender: <string>}){
+    status_code
+    errors
+  }
+}
+```
+
+#### Edit user profile
+```
+mutation edit {
+  editUser(input: {email: <string>, fname: <string?>, lname: <string?>, reg: <string?>, phone: <string?>, password: <string?>, google: <bool?>, gender: <string?>}){
     status_code
     errors
   }

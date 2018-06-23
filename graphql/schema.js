@@ -24,6 +24,7 @@ const {
 
 const {
   userInput,
+  userEditInput,
   viewerInput,
   festInput,
   festEdit,
@@ -35,6 +36,7 @@ const {
   findUser,
   getFeed,
   createUser,
+  editUser,
   authenticate,
   createFest,
   editFest,
@@ -84,6 +86,13 @@ let mutationType = new GraphQLObjectType({
         input: {type: userInput}
       },
       resolve: createUser
+    },
+    editUser: {
+      type: registerResponse,
+      args: {
+        user: {type: userEditInput}
+      },
+      resolve: editUser
     },
     authenticate: {
       type: authResponse,
