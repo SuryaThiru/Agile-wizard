@@ -24,7 +24,7 @@ mutation ver{
 #### get user feed i.e. fests/events that are active
 ```
 query feed{
-  getFeed(viewer:{token: <token>}){
+  getFeed {
     status_code
     errors
     feed{
@@ -39,6 +39,30 @@ query feed{
       isActive
       fromDate
       toDate
+    }
+  }
+}
+```
+
+#### get carpenter fest feed
+```
+query feed {
+  getCarpenterFests {
+    status_code
+    errors
+    fests {
+      ID
+      name
+      venue
+      tags
+      description
+      speakers
+      contact
+      link
+      isActive
+      fromDate
+      toDate
+      RSVP
     }
   }
 }

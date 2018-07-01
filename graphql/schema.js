@@ -15,7 +15,7 @@ const {
   registerResponse,
   authResponse,
   queryResponse,
-  feedResponse,
+  festCarpenterResponse,
   generalResponse,
   festResponse,
   blogResponse,
@@ -34,7 +34,7 @@ const {
 
 const {
   findUser,
-  getFeed,
+  getCarpenterFests,
   createUser,
   editUser,
   authenticate,
@@ -62,9 +62,9 @@ let queryType = new GraphQLObjectType({
       type: queryResponse,
       resolve: findUser
     },
-    getFeed: {
-      type: feedResponse,
-      resolve: getFeed
+    getCarpenterFests: {  // TODO add docs
+      type: festCarpenterResponse,
+      resolve: getCarpenterFests
     },
     getBlogs: {
       type: blogsResponse,

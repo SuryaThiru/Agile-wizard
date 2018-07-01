@@ -43,9 +43,9 @@ function findUser(_, params, {user, errs}) {
   });
 }
 
-function getUserFeed(_, params, {user, errs}) {
-  return jwtwrapper(user, errs, -1, () => {
-    let Query = db.collection('fests').where('isActive', '==', true);
+function getCarpenterFests(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, 2, () => {
+    let Query = db.collection('fests'); //.where('isActive', '==', true);
     let docList = [];
 
     return Query.get()
@@ -56,7 +56,7 @@ function getUserFeed(_, params, {user, errs}) {
           return {
             status_code: 420,
             errors: 'No events currently.',
-            feed: null
+            fests: null
           };
         }
         else {
@@ -69,7 +69,7 @@ function getUserFeed(_, params, {user, errs}) {
           return {
             status_code: 200,
             errors: null,
-            feed: docList
+            fests: docList
           };
         }
       }).catch(err => {
@@ -77,7 +77,7 @@ function getUserFeed(_, params, {user, errs}) {
         return {
           status_code: 400,
           errors: message,
-          feed: null
+          fests: null
         };
       });
   });
@@ -756,7 +756,7 @@ function editBlog(_, {ID, blogPost}, {user, errs}) {
 
 module.exports = {
   findUser: findUser,
-  getFeed: getUserFeed,
+  getCarpenterFests: getCarpenterFests,
   createUser: createUser,
   editUser: editUser,
   authenticate: authenticate,

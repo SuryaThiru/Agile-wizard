@@ -98,7 +98,9 @@ let carpenterFeed = new GraphQLObjectType({
         link: {type: new GraphQLList(GraphQLString)},
         feedback: {type: new GraphQLList(feedback)},
         isActive: {type: GraphQLBoolean},
-        QRcode: {type: GraphQLString}
+        QRcode: {type: GraphQLString},
+        fromDate: {type: GraphQLString}, // ISO format eg: 2018-05-14T09:22:42.232Z
+        toDate: {type: GraphQLString}    // default date format in JS
     }
 });
 
@@ -152,6 +154,15 @@ let generalResponse = new GraphQLObjectType({
   }
 });
 
+let festCarpenterResponse = new GraphQLObjectType({
+  name: 'festCarpenterResponse',
+  fields: {
+    status_code: {type: GraphQLInt},
+    errors: {type: GraphQLString},
+    fests: {type: new GraphQLList(carpenterFeed)}
+  }
+});
+
 let festResponse = new GraphQLObjectType({
   name: 'festResponse',
   fields: {
@@ -167,6 +178,7 @@ module.exports = {
   authResponse: authResponse,
   feedResponse: feedResponse,
   generalResponse: generalResponse,
+  festCarpenterResponse: festCarpenterResponse,
   festResponse: festResponse,
   blogPost: blogPost,
   blogResponse: blogResponse,
