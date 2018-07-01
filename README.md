@@ -24,7 +24,7 @@ mutation ver{
 #### get user feed i.e. fests/events that are active
 ```
 query feed{
-  getFeed {
+  getUserFeed {
     status_code
     errors
     feed{
@@ -39,6 +39,7 @@ query feed{
       isActive
       fromDate
       toDate
+      RSVP
     }
   }
 }
