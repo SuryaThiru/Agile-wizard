@@ -64,7 +64,7 @@ let feedback = new GraphQLObjectType({
     }
 });
 
-// Fests schema common for user app
+// Fests schema common for user app - only gets active fests
 let userFeed = new GraphQLObjectType({
   name: 'userFeed',
   fields: {

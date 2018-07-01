@@ -36,7 +36,6 @@ query feed{
       speakers
       contact
       link
-      isActive
       fromDate
       toDate
       RSVP
