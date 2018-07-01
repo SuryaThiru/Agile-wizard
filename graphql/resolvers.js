@@ -101,9 +101,19 @@ function getUserFests(_, params, {user, errs}) {
         }
         else {
           snapshot.forEach(doc => {
-            let modifiedDoc = doc.data();
-            modifiedDoc.ID = doc.id;
-            docList.push(modifiedDoc);
+            let data = doc.data();
+            data.ID = doc.id;
+
+            if (data.RSVP !== [] && data.RSVP !== undefined) {
+              if (data.RSVP.includes(user.email))
+                data.RSVP = true;
+              else
+                data.RSVP = false;
+            }
+            else
+              data.RSVP = false; // if no one RSVP'd
+
+            docList.push(data);
           });
 
           return {
@@ -592,9 +602,11 @@ function addRSVP(_, {festID}, {user,errs}) {
             errors: 'Invalid fest ID'
           };
         }
+
+        // TODO better implementation
         let data = doc.data();
-        if(data.RSVP !== [] && data.RSVP!==null){
-          if(data.RSVP.includes(user.email)){
+        if (data.RSVP !== [] && data.RSVP !== undefined) {
+          if(data.RSVP.includes(user.email)) {
             return {
               status_code: 420,
               errors: 'already rsvped'
