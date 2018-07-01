@@ -76,9 +76,9 @@ let userFeed = new GraphQLObjectType({
     speakers: {type: new GraphQLList(GraphQLString)},
     contact: {type: new GraphQLList(GraphQLString)},
     link: {type: new GraphQLList(GraphQLString)},
-    isActive: {type: GraphQLBoolean},
     fromDate: {type: GraphQLString}, // ISO format eg: 2018-05-14T09:22:42.232Z
-    toDate: {type: GraphQLString}    // default date format in JS
+    toDate: {type: GraphQLString},    // default date format in JS
+    RSVP: {type: GraphQLBoolean}  // whether the user RSVP'd
   }
 });
 
@@ -163,6 +163,15 @@ let festCarpenterResponse = new GraphQLObjectType({
   }
 });
 
+let festUserResponse = new GraphQLObjectType({
+  name: 'festuserResponse',
+  fields: {
+    status_code: {type: GraphQLInt},
+    errors: {type: GraphQLString},
+    fests: {type: new GraphQLList(userFeed)}
+  }
+});
+
 let festResponse = new GraphQLObjectType({
   name: 'festResponse',
   fields: {
@@ -179,6 +188,7 @@ module.exports = {
   feedResponse: feedResponse,
   generalResponse: generalResponse,
   festCarpenterResponse: festCarpenterResponse,
+  festUserResponse: festUserResponse,
   festResponse: festResponse,
   blogPost: blogPost,
   blogResponse: blogResponse,

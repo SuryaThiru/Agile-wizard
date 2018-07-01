@@ -45,7 +45,47 @@ function findUser(_, params, {user, errs}) {
 
 function getCarpenterFests(_, params, {user, errs}) {
   return jwtwrapper(user, errs, 2, () => {
-    let Query = db.collection('fests'); //.where('isActive', '==', true);
+    let Query = db.collection('fests');
+    let docList = [];
+
+    return Query.get()
+      .then(snapshot => {
+        if (snapshot.empty) {
+          console.log('no events');
+
+          return {
+            status_code: 420,
+            errors: 'No events currently.',
+            fests: null
+          };
+        }
+        else {
+          snapshot.forEach(doc => {
+            let modifiedDoc = doc.data();
+            modifiedDoc.ID = doc.id;
+            docList.push(modifiedDoc);
+          });
+
+          return {
+            status_code: 200,
+            errors: null,
+            fests: docList
+          };
+        }
+      }).catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message,
+          fests: null
+        };
+      });
+  });
+}
+
+function getUserFests(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, -1, () => {
+    let Query = db.collection('fests').where('isActive', '==', true);
     let docList = [];
 
     return Query.get()
@@ -757,6 +797,7 @@ function editBlog(_, {ID, blogPost}, {user, errs}) {
 module.exports = {
   findUser: findUser,
   getCarpenterFests: getCarpenterFests,
+  getUserFests: getUserFests,
   createUser: createUser,
   editUser: editUser,
   authenticate: authenticate,
