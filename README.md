@@ -24,7 +24,7 @@ mutation ver{
 #### get user feed i.e. fests/events that are active
 ```
 query feed{
-  getUserFeed {
+  getUserFests {
     status_code
     errors
     feed{
