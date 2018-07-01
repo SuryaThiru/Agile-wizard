@@ -43,9 +43,9 @@ function findUser(_, params, {user, errs}) {
   });
 }
 
-function getUserFeed(_, params, {user, errs}) {
-  return jwtwrapper(user, errs, -1, () => {
-    let Query = db.collection('fests').where('isActive', '==', true);
+function getCarpenterFests(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, 2, () => {
+    let Query = db.collection('fests');
     let docList = [];
 
     return Query.get()
@@ -56,7 +56,7 @@ function getUserFeed(_, params, {user, errs}) {
           return {
             status_code: 420,
             errors: 'No events currently.',
-            feed: null
+            fests: null
           };
         }
         else {
@@ -69,7 +69,7 @@ function getUserFeed(_, params, {user, errs}) {
           return {
             status_code: 200,
             errors: null,
-            feed: docList
+            fests: docList
           };
         }
       }).catch(err => {
@@ -77,7 +77,57 @@ function getUserFeed(_, params, {user, errs}) {
         return {
           status_code: 400,
           errors: message,
-          feed: null
+          fests: null
+        };
+      });
+  });
+}
+
+function getUserFests(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, -1, () => {
+    let Query = db.collection('fests').where('isActive', '==', true);
+    let docList = [];
+
+    return Query.get()
+      .then(snapshot => {
+        if (snapshot.empty) {
+          console.log('no events');
+
+          return {
+            status_code: 420,
+            errors: 'No events currently.',
+            fests: null
+          };
+        }
+        else {
+          snapshot.forEach(doc => {
+            let data = doc.data();
+            data.ID = doc.id;
+
+            if (data.RSVP !== [] && data.RSVP !== undefined) {
+              if (data.RSVP.includes(user.email))
+                data.RSVP = true;
+              else
+                data.RSVP = false;
+            }
+            else
+              data.RSVP = false; // if no one RSVP'd
+
+            docList.push(data);
+          });
+
+          return {
+            status_code: 200,
+            errors: null,
+            fests: docList
+          };
+        }
+      }).catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message,
+          fests: null
         };
       });
   });
@@ -552,9 +602,11 @@ function addRSVP(_, {festID}, {user,errs}) {
             errors: 'Invalid fest ID'
           };
         }
+
+        // TODO better implementation
         let data = doc.data();
-        if(data.RSVP !== [] && data.RSVP!==null){
-          if(data.RSVP.includes(user.email)){
+        if (data.RSVP !== [] && data.RSVP !== undefined) {
+          if(data.RSVP.includes(user.email)) {
             return {
               status_code: 420,
               errors: 'already rsvped'
@@ -756,7 +808,8 @@ function editBlog(_, {ID, blogPost}, {user, errs}) {
 
 module.exports = {
   findUser: findUser,
-  getFeed: getUserFeed,
+  getCarpenterFests: getCarpenterFests,
+  getUserFests: getUserFests,
   createUser: createUser,
   editUser: editUser,
   authenticate: authenticate,
