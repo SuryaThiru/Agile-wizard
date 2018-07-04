@@ -27,7 +27,7 @@ query feed{
   getUserFests {
     status_code
     errors
-    feed{
+    fests {
       ID
       name
       venue
