@@ -35,6 +35,7 @@ async function generateRedirects(festID, campaignName, targetURL, sources,
 
 function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null,
                                 metaImageUrl=null) {
+  // set default values
   metaImageUrl = metaImageUrl || 'https://pbs.twimg.com/profile_images/' +
     '978523451886469120/u4iGgAm8_400x400.jpg';
   metaDesc = metaDesc || 'DSC VIT Vellore is a non-profit ' +

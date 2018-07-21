@@ -317,8 +317,6 @@ mutation create {
   }
 }
 ```
-__Note__: `sourceURLs` is a stringified JSON containing redirect urls for all sources
-
 
 #### Get all campaigns
 ```
@@ -334,6 +332,8 @@ query campaigns {
   }
 }
 ``` 
+__Note__: `sourceURLs` is a stringified JSON containing redirect urls for all sources
+
 
 ## Contributing
 * don't push to master directly
