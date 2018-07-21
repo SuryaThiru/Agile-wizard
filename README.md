@@ -27,7 +27,30 @@ query feed{
   getUserFests {
     status_code
     errors
-    feed{
+    fests {
+      ID
+      name
+      venue
+      tags
+      description
+      speakers
+      contact
+      link
+      fromDate
+      toDate
+      RSVP
+    }
+  }
+}
+```
+
+#### get carpenter fest feed
+```
+query feed {
+  getCarpenterFests {
+    status_code
+    errors
+    fests {
       ID
       name
       venue
