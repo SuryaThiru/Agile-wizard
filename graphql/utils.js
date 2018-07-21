@@ -1,16 +1,13 @@
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 const querystring = require('querystring');
+const firebaseWebAPI = require('../config/lazarus-web-api');
+const rp = require('request-promise');
 
-function generateRedirects(festID, campaignName, targetURL, sources) {
-  /*
-  generate a redirect URL for each source in campaign
-  params:
-  festID, campaignName, targetURL (string)
-  sources (array of strings)
- */
+
+async function generateRedirects(festID, campaignName, targetURL, sources) {
   let campaignId = uuid();
-  let redirectURL = 'redirect.dscvit.com/campaign?';
+  let redirectURL = 'http://redirect.dscvit.com/campaign?';
 
   let campaign = {};
   campaign[campaignId] = {
@@ -28,12 +25,56 @@ function generateRedirects(festID, campaignName, targetURL, sources) {
     };
 
     let url = redirectURL + querystring.stringify(params);
+    url = await getFirebaseDynamicLink(url);
     campaign[campaignId][source] = url;
   }
 
   return [campaignId, campaign];
 }
 
+function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null, metaImageUrl=null) {
+  metaImageUrl = metaImageUrl || 'https://pbs.twimg.com/profile_images/' +
+    '978523451886469120/u4iGgAm8_400x400.jpg';
+  metaDesc = metaDesc || 'DSC VIT Vellore is a non-profit student developer group' +
+    ' to develop, learn and share';
+  metaTitle = metaTitle || 'Developer Student Community VIT';
+
+  const firebaseDynamicLinkDomain = 'dscvit.page.link';
+  let apiHost = 'https://firebasedynamiclinks.googleapis.com/v1/shortLinks';
+  const apiKey = { key: firebaseWebAPI.api_key };
+
+  apiHost += '?' + querystring.stringify(apiKey);   // add query params
+
+  let requestBody = {
+    'dynamicLinkInfo': {
+      'dynamicLinkDomain': firebaseDynamicLinkDomain,
+      'link': url,
+      'socialMetaTagInfo': {
+        'socialTitle': metaTitle,
+        'socialDescription': metaDesc,
+        'socialImageLink': metaImageUrl
+      }
+    }
+  };
+
+  let options = {
+    method: 'POST',
+    uri: apiHost,
+    headers: {
+      "Content-Type": "application/json"
+    },
+    json: true,
+    body: requestBody
+  };
+
+  return rp(options)
+    .then(body => {
+      return body.shortLink;
+    });
+  // .catch(err => {
+  //   return err;
+  // });
+}
 
 const test = (stuff)=>{
   return {

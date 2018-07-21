@@ -2,9 +2,10 @@ const expect = require('chai').expect;
 const {generateRedirects} = require('../graphql/utils');
 
 describe('redirect url generator', () => {
-  it('generate all urls and campaign ID', () => {
+  it('generate all shortened firebase dynamic urls and campaign ID', async () => {
     let src = ['whatsapp', 'fb', 'linkedin'];
-    let out = generateRedirects('233', 'testing', 'register.target.com/url', src);
+    let out = await generateRedirects('233', 'testing', 'register.target.com/url', src);
+
     let cid = out[0];
     let data = out[1];
 
