@@ -13,7 +13,8 @@ const FieldValue = fire.FieldValue;
 const {
   formatErrors,
   validate,
-  generateRedirects
+  generateRedirects,
+  formatCampaign
 } = require('./utils');
 
 
@@ -832,17 +833,12 @@ function createCampaign(_, params, {user, errs}) {
       // resolve update to database
       return query.update(festData)
         .then(() => {
-          let name = campaign[cid].name;
-          delete campaign[cid].name;
+          let formattedCampaign = formatCampaign(campaign, cid);
 
           return {
             status_code: 200,
             errors: null,
-            campaign: {
-              ID: cid,
-              name: name,
-              sourceURLs: JSON.stringify(campaign[cid])
-            }
+            campaign: formattedCampaign
           };
         });
     })
@@ -854,6 +850,46 @@ function createCampaign(_, params, {user, errs}) {
           status_code: 420,
           errors: message,
           campaign: null
+        };
+      });
+  });
+}
+
+function getCampaigns(_, {festID}, {user, errs}) {
+  return jwtwrapper(user, errs, MGMT, () => {
+    let Query = db.collection('fests').doc(festID);
+
+    return Query.get()
+      .then(doc => {
+        if (!doc.exists) {
+          console.log('no fest with that ID');
+
+          return {
+            status_code: 420,
+            errors: 'fest not found.',
+            campaigns: null
+          };
+        }
+        else {
+          let fest = doc.data();
+          let campaignsList = [];
+
+          for (let cid in fest.campaign) {
+            campaignsList.push(formatCampaign(fest.campaign, cid));
+          }
+
+          return {
+            status_code: 200,
+            errors: null,
+            campaigns: campaignsList
+          };
+        }
+      }).catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message,
+          campaigns: null
         };
       });
   });
@@ -880,5 +916,6 @@ module.exports = {
   addBlog: addBlog,
   editBlog: editBlog,
   getBlogs: getBlogs,
-  createCampaign: createCampaign
+  createCampaign: createCampaign,
+  getCampaigns: getCampaigns
 };

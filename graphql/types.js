@@ -201,6 +201,16 @@ let campaignResponse = new GraphQLObjectType({
   }
 });
 
+// query response
+let campaignsResponse = new GraphQLObjectType({
+  name: 'campaignsResponse',
+  fields: {
+    status_code: {type: GraphQLInt},
+    errors: {type: GraphQLString},
+    campaigns: {type: new GraphQLList(campaign)}
+  }
+});
+
 module.exports = {
   registerResponse: registerResponse,
   queryResponse: queryResponse,
@@ -213,5 +223,6 @@ module.exports = {
   blogPost: blogPost,
   blogResponse: blogResponse,
   blogsResponse: blogsResponse,
-  campaignResponse: campaignResponse
+  campaignResponse: campaignResponse,
+  campaignsResponse: campaignsResponse
 };

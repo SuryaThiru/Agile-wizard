@@ -22,7 +22,8 @@ const {
   festResponse,
   blogResponse,
   blogsResponse,
-  campaignResponse
+  campaignResponse,
+  campaignsResponse
 } = require('./types');
 
 const {
@@ -56,7 +57,8 @@ const {
   addBlog,
   editBlog,
   getBlogs,
-  createCampaign
+  createCampaign,
+  getCampaigns
 } = require('./resolvers');
 
 
@@ -81,6 +83,13 @@ let queryType = new GraphQLObjectType({
         count: {type: new GraphQLNonNull(GraphQLInt)}
       },
       resolve: getBlogs
+    },
+    getCampaigns: {
+      type: campaignsResponse,
+      args: {
+        festID: {type: new GraphQLNonNull(GraphQLString)}
+      },
+      resolve: getCampaigns
     }
   }
 });

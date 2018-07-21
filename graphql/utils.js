@@ -78,6 +78,18 @@ function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null,
   // });
 }
 
+function formatCampaign(campaign, cid) {
+  // convert from db schema to graphql schema
+  let name = campaign[cid].name;
+  delete campaign[cid].name;
+
+  return {
+    ID: cid,
+    name: name,
+    sourceURLs: JSON.stringify(campaign[cid])
+  };
+}
+
 const formatErrors = (e) => {
   console.log(e.code);
   if(e.name === 'JsonWebTokenError' || e.name === 'SyntaxError'){
@@ -98,5 +110,6 @@ const validate =  (email)=>{
 module.exports = {
   formatErrors: formatErrors,
   validate: validate,
-  generateRedirects: generateRedirects
+  generateRedirects: generateRedirects,
+  formatCampaign: formatCampaign
 };

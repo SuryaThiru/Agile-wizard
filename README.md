@@ -303,21 +303,37 @@ mutation addRSVP {
  
 #### Create new campaign
 ```
- mutation create {
-  	createCampaign(
-  		festID: <string>, campaignName: <string>, targetURL: <string>, sources: <array of string>, 
-  		metaDesc: <string>, metaImageURL: <string>, metaTitle: <string>) {
-  		status_code
-  		errors
-  		campaign {
-  			ID
-  			name
-  			sourceURLs
-  		}
-  	}
- }
+mutation create {
+  createCampaign(
+    festID: <string>, campaignName: <string>, targetURL: <string>, sources: <array of string>, 
+    metaDesc: <string>, metaImageURL: <string>, metaTitle: <string>) {
+    status_code
+    errors
+    campaign {
+      ID
+      name
+      sourceURLs
+    }
+  }
+}
 ```
-__Note__: `sourceURLs` is a stringified JSON containing redirect urls for all sources 
+__Note__: `sourceURLs` is a stringified JSON containing redirect urls for all sources
+
+
+#### Get all campaigns
+```
+query campaigns {
+  getCampaigns(festID: <string>) {
+    status_code
+    errors
+    campaigns {
+      ID
+      name
+      sourceURLs
+    }
+  }
+}
+``` 
 
 ## Contributing
 * don't push to master directly
