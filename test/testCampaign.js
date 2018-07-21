@@ -1,12 +1,13 @@
-const jwt = require('jsonwebtoken');
+/*
+  generate a redirect URL for each source in campaign
+ */
 const uuid = require('uuid/v4');
 const querystring = require('querystring');
 const firebaseWebAPI = require('../config/lazarus-web-api');
 const rp = require('request-promise');
 
 
-async function generateRedirects(festID, campaignName, targetURL, sources,
-                                 metaTitle=null, metaDesc=null, metaImageUrl=null) {
+async function generateRedirects(festID, campaignName, targetURL, sources) {
   let campaignId = uuid();
   let redirectURL = 'http://redirect.dscvit.com/campaign?';
 
@@ -26,20 +27,18 @@ async function generateRedirects(festID, campaignName, targetURL, sources,
     };
 
     let url = redirectURL + querystring.stringify(params);
-    url = await getFirebaseDynamicLink(url, metaTitle, metaDesc, metaImageUrl);
+    url = await getFirebaseDynamicLink(url);
     campaign[campaignId][source] = url;
   }
 
   return [campaignId, campaign];
 }
 
-function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null,
-                                metaImageUrl=null) {
-  // set default values
+function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null, metaImageUrl=null) {
   metaImageUrl = metaImageUrl || 'https://pbs.twimg.com/profile_images/' +
     '978523451886469120/u4iGgAm8_400x400.jpg';
-  metaDesc = metaDesc || 'DSC VIT Vellore is a non-profit ' +
-    'student developer group to develop, learn and share';
+  metaDesc = metaDesc || 'DSC VIT Vellore is a non-profit student developer group' +
+    ' to develop, learn and share';
   metaTitle = metaTitle || 'Developer Student Community VIT';
 
   const firebaseDynamicLinkDomain = 'dscvit.page.link';
@@ -73,44 +72,8 @@ function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null,
   return rp(options)
     .then(body => {
       return body.shortLink;
-    });
-  // .catch(err => {
-  //   return err;
-  // });
+    })
+    // .catch(err => {
+    //   return err;
+    // });
 }
-
-function formatCampaign(campaign, cid) {
-  // convert from db schema to graphql schema
-  let name = campaign[cid].name;
-  delete campaign[cid].name;
-
-  return {
-    ID: cid,
-    name: name,
-    sourceURLs: JSON.stringify(campaign[cid])
-  };
-}
-
-const formatErrors = (e) => {
-  console.log(e.code);
-  if(e.name === 'JsonWebTokenError' || e.name === 'SyntaxError'){
-    return "Token is Invalid";
-  }
-  else if(e.code === 6){
-    return "User Already exists";
-  }
-  return e.message;
-};
-
-const validate =  (email)=>{
-    let emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-    return emailRegex.test(email); // Assuming email has a text attribute
-};
-
-
-module.exports = {
-  formatErrors: formatErrors,
-  validate: validate,
-  generateRedirects: generateRedirects,
-  formatCampaign: formatCampaign
-};

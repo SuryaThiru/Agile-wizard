@@ -8,7 +8,8 @@ const {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLInt,
-  GraphQLNonNull
+  GraphQLNonNull,
+  GraphQLList
 } = require('graphql');
 
 const {
@@ -20,7 +21,9 @@ const {
   generalResponse,
   festResponse,
   blogResponse,
-  blogsResponse
+  blogsResponse,
+  campaignResponse,
+  campaignsResponse
 } = require('./types');
 
 const {
@@ -53,7 +56,9 @@ const {
   addRSVP,
   addBlog,
   editBlog,
-  getBlogs
+  getBlogs,
+  createCampaign,
+  getCampaigns
 } = require('./resolvers');
 
 
@@ -78,6 +83,13 @@ let queryType = new GraphQLObjectType({
         count: {type: new GraphQLNonNull(GraphQLInt)}
       },
       resolve: getBlogs
+    },
+    getCampaigns: {
+      type: campaignsResponse,
+      args: {
+        festID: {type: new GraphQLNonNull(GraphQLString)}
+      },
+      resolve: getCampaigns
     }
   }
 });
@@ -207,6 +219,19 @@ let mutationType = new GraphQLObjectType({
         password: {type: GraphQLString}
       },
       resolve: changePassword
+    },
+    createCampaign: {
+      type: campaignResponse,
+      args: {
+        festID: {type: new GraphQLNonNull(GraphQLString)},
+        campaignName: {type: new GraphQLNonNull(GraphQLString)},
+        targetURL: {type: new GraphQLNonNull(GraphQLString)},
+        sources: {type: new GraphQLNonNull(new GraphQLList(GraphQLString))},
+        metaDesc: {type: new GraphQLNonNull(GraphQLString)},
+        metaImageURL: {type: new GraphQLNonNull(GraphQLString)},
+        metaTitle: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: createCampaign
     }
   }
 });

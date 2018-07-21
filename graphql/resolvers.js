@@ -12,8 +12,17 @@ const FieldValue = fire.FieldValue;
 
 const {
   formatErrors,
-  validate
+  validate,
+  generateRedirects,
+  formatCampaign
 } = require('./utils');
+
+
+// authorization levels
+const ALL = 1;    // universal access including end users
+const MGMT = 2;   // access to management people and above
+const SMGMT = 3;  // access to senior managers
+const ADMIN = 4;  // server admin only
 
 
 // Query Resolvers
@@ -806,6 +815,86 @@ function editBlog(_, {ID, blogPost}, {user, errs}) {
   });
 }
 
+function createCampaign(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, MGMT, () => {
+    let query = db.collection('fests').doc(params.festID);
+
+    let redirects = generateRedirects(params.festID, params.campaignName,
+      params.targetURL, params.sources, params.metaTitle, params.metaDesc, params.metaImageURL);
+
+    // resolve URL generation
+    return redirects.then(res => {
+      let cid = res[0];
+      let campaign = res[1];
+
+      let festData = {};
+      festData[`campaign.${cid}`] = campaign[cid]; // add new campaign
+
+      // resolve update to database
+      return query.update(festData)
+        .then(() => {
+          let formattedCampaign = formatCampaign(campaign, cid);
+
+          return {
+            status_code: 200,
+            errors: null,
+            campaign: formattedCampaign
+          };
+        });
+    })
+      .catch(err => {
+        console.log('log create campaign' + err);
+        let message = formatErrors(err);
+
+        return {
+          status_code: 420,
+          errors: message,
+          campaign: null
+        };
+      });
+  });
+}
+
+function getCampaigns(_, {festID}, {user, errs}) {
+  return jwtwrapper(user, errs, MGMT, () => {
+    let Query = db.collection('fests').doc(festID);
+
+    return Query.get()
+      .then(doc => {
+        if (!doc.exists) {
+          console.log('no fest with that ID');
+
+          return {
+            status_code: 420,
+            errors: 'fest not found.',
+            campaigns: null
+          };
+        }
+        else {
+          let fest = doc.data();
+          let campaignsList = [];
+
+          for (let cid in fest.campaign) {
+            campaignsList.push(formatCampaign(fest.campaign, cid));
+          }
+
+          return {
+            status_code: 200,
+            errors: null,
+            campaigns: campaignsList
+          };
+        }
+      }).catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message,
+          campaigns: null
+        };
+      });
+  });
+}
+
 module.exports = {
   findUser: findUser,
   getCarpenterFests: getCarpenterFests,
@@ -826,5 +915,7 @@ module.exports = {
   addRSVP: addRSVP,
   addBlog: addBlog,
   editBlog: editBlog,
-  getBlogs: getBlogs
+  getBlogs: getBlogs,
+  createCampaign: createCampaign,
+  getCampaigns: getCampaigns
 };
