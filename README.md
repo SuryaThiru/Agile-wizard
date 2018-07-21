@@ -252,7 +252,7 @@ query finduser {
 ```
 
 #### Enable the qr generator 
-```$xslt
+```
 mutation enableQR {
   enableQr(festID: <string>, viewer:{token: <token>}) {
     status_code
@@ -262,7 +262,7 @@ mutation enableQR {
 ```
 
 #### Disable the qr generator 
-```$xslt
+```
 mutation disableQR {
   disableQr(festID: <string>, viewer:{token: <token>}) {
     status_code
@@ -272,7 +272,7 @@ mutation disableQR {
 ```
 
 #### Update user attendance 
-```$xslt
+```
 mutation attendance {
   updateAttendance(festID: <string>, code: <string>) {
     status_code
@@ -282,7 +282,7 @@ mutation attendance {
 ```
 
 #### Update add RSVP 
-```$xslt
+```
 mutation addRSVP {
   addRSVP(festID: <string>, viewer:{token: <token>}) {
     status_code
@@ -292,7 +292,7 @@ mutation addRSVP {
 ```
 
 #### Add a feedback
- ```$xslt
+ ```
  mutation addfeedback {
    addFeedback(festID: <string>, feedback: <string>) {
      status_code
@@ -300,8 +300,26 @@ mutation addRSVP {
    }
  }
  ```
+ 
+#### Create new campaign
+```
+ mutation create {
+  	createCampaign(
+  		festID: <string>, campaignName: <string>, targetURL: <string>, sources: <array of string>, 
+  		metaDesc: <string>, metaImageURL: <string>, metaTitle: <string>) {
+  		status_code
+  		errors
+  		campaign {
+  			ID
+  			name
+  			sourceURLs
+  		}
+  	}
+ }
+```
+__Note__: `sourceURLs` is a stringified JSON containing redirect urls for all sources 
 
-### Contributing
+## Contributing
 * don't push to master directly
 * use jshint to check linting issues (use the .jshrc provided in the repo) or run `npm run lint`
 

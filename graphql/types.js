@@ -181,6 +181,26 @@ let festResponse = new GraphQLObjectType({
   }
 });
 
+let campaign = new GraphQLObjectType({
+  name: 'campaign',
+  fields: {
+    ID: {type: GraphQLString},
+    name: {type: GraphQLString},
+    sourceURLs: {type: GraphQLString}   // its a stringified json
+  }                                     // difficult to represent as graphql schema
+});
+
+let campaignResponse = new GraphQLObjectType({
+  name: 'campaignResponse',
+  fields: {
+    status_code: {type: GraphQLInt},
+    errors: {type: GraphQLString},
+    campaign: {
+      type: campaign
+    }
+  }
+});
+
 module.exports = {
   registerResponse: registerResponse,
   queryResponse: queryResponse,
@@ -192,5 +212,6 @@ module.exports = {
   festResponse: festResponse,
   blogPost: blogPost,
   blogResponse: blogResponse,
-  blogsResponse: blogsResponse
+  blogsResponse: blogsResponse,
+  campaignResponse: campaignResponse
 };

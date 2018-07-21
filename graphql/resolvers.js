@@ -12,7 +12,8 @@ const FieldValue = fire.FieldValue;
 
 const {
   formatErrors,
-  validate
+  validate,
+  generateRedirects
 } = require('./utils');
 
 
@@ -813,6 +814,51 @@ function editBlog(_, {ID, blogPost}, {user, errs}) {
   });
 }
 
+function createCampaign(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, MGMT, () => {
+    let query = db.collection('fests').doc(params.festID);
+
+    let redirects = generateRedirects(params.festID, params.campaignName,
+      params.targetURL, params.sources, params.metaTitle, params.metaDesc, params.metaImageURL);
+
+    // resolve URL generation
+    return redirects.then(res => {
+      let cid = res[0];
+      let campaign = res[1];
+
+      let festData = {};
+      festData[`campaign.${cid}`] = campaign[cid]; // add new campaign
+
+      // resolve update to database
+      return query.update(festData)
+        .then(() => {
+          let name = campaign[cid].name;
+          delete campaign[cid].name;
+
+          return {
+            status_code: 200,
+            errors: null,
+            campaign: {
+              ID: cid,
+              name: name,
+              sourceURLs: JSON.stringify(campaign[cid])
+            }
+          };
+        });
+    })
+      .catch(err => {
+        console.log('log create campaign' + err);
+        let message = formatErrors(err);
+
+        return {
+          status_code: 420,
+          errors: message,
+          campaign: null
+        };
+      });
+  });
+}
+
 module.exports = {
   findUser: findUser,
   getCarpenterFests: getCarpenterFests,
@@ -833,5 +879,6 @@ module.exports = {
   addRSVP: addRSVP,
   addBlog: addBlog,
   editBlog: editBlog,
-  getBlogs: getBlogs
+  getBlogs: getBlogs,
+  createCampaign: createCampaign
 };

@@ -5,7 +5,8 @@ const firebaseWebAPI = require('../config/lazarus-web-api');
 const rp = require('request-promise');
 
 
-async function generateRedirects(festID, campaignName, targetURL, sources) {
+async function generateRedirects(festID, campaignName, targetURL, sources,
+                                 metaTitle=null, metaDesc=null, metaImageUrl=null) {
   let campaignId = uuid();
   let redirectURL = 'http://redirect.dscvit.com/campaign?';
 
@@ -25,18 +26,19 @@ async function generateRedirects(festID, campaignName, targetURL, sources) {
     };
 
     let url = redirectURL + querystring.stringify(params);
-    url = await getFirebaseDynamicLink(url);
+    url = await getFirebaseDynamicLink(url, metaTitle, metaDesc, metaImageUrl);
     campaign[campaignId][source] = url;
   }
 
   return [campaignId, campaign];
 }
 
-function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null, metaImageUrl=null) {
+function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null,
+                                metaImageUrl=null) {
   metaImageUrl = metaImageUrl || 'https://pbs.twimg.com/profile_images/' +
     '978523451886469120/u4iGgAm8_400x400.jpg';
-  metaDesc = metaDesc || 'DSC VIT Vellore is a non-profit student developer group' +
-    ' to develop, learn and share';
+  metaDesc = metaDesc || 'DSC VIT Vellore is a non-profit ' +
+    'student developer group to develop, learn and share';
   metaTitle = metaTitle || 'Developer Student Community VIT';
 
   const firebaseDynamicLinkDomain = 'dscvit.page.link';
@@ -76,14 +78,6 @@ function getFirebaseDynamicLink(url, metaTitle=null, metaDesc=null, metaImageUrl
   // });
 }
 
-const test = (stuff)=>{
-  return {
-    flag: true,
-    errors: null,
-    token: jwt.sign({email: stuff.email}, process.env.jwt_secret)
-  };
-};
-
 const formatErrors = (e) => {
   console.log(e.code);
   if(e.name === 'JsonWebTokenError' || e.name === 'SyntaxError'){
@@ -102,7 +96,6 @@ const validate =  (email)=>{
 
 
 module.exports = {
-  test: test,
   formatErrors: formatErrors,
   validate: validate,
   generateRedirects: generateRedirects
