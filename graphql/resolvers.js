@@ -16,6 +16,13 @@ const {
 } = require('./utils');
 
 
+// authorization levels
+const ALL = 1;    // universal access including end users
+const MGMT = 2;   // access to management people and above
+const SMGMT = 3;  // access to senior managers
+const ADMIN = 4;  // server admin only
+
+
 // Query Resolvers
 function findUser(_, params, {user, errs}) {
 

@@ -8,11 +8,10 @@ const jwt = require('express-jwt');
 
 
 function auth_error(err, req, res, next) {
-  // console.log(err);
-  if(err.name === 'UnauthorizedError'){
+  if(err.name === 'UnauthorizedError') {
     req.errs = 'Invalid Token';
   }
-  else{
+  else {
     req.errs = null;
   }
   next();
