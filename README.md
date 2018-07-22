@@ -152,7 +152,7 @@ mutation toggle{
 #### Post a blog
 ```
 mutation addBlog {
-    addBlog(blogPost: {title: <string>, description: <string>, tags: <string?>, author: <string>, link: <string> }) {
+    addBlog(blogPost: {title: <string>, description: <string>, tags: <array of strings?>, author: <string>, link: <string> }) {
         status_code
         errors
         blog {
@@ -171,7 +171,7 @@ mutation addBlog {
 #### Edit a blog
 ```
 mutation editBlog {
-    editBlog(ID: <string>, blogPost: {title: <string?>, description: <string?>, tags: <string?>, author: <string?>, link: <string?> }) {
+    editBlog(ID: <string>, blogPost: {title: <string?>, description: <string?>, tags: <array of strings?>, author: <string?>, link: <string?> }) {
         status_code
         errors
     }
