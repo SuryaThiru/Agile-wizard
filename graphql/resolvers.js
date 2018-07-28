@@ -417,18 +417,9 @@ const toggleFest = (_, {ID}, {user,errs}) => {
   });
 };
 
-function enableQr(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
+function enableQr(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, MGMT, () => {
     let status = enableQR(params.festID);
-
-    if (decoded.auth_level<=2){
-      return {
-        status_code: 420,
-        errors: 'Unauthorized'
-      };
-    }
 
     if (status.code === 1)
       return {
@@ -443,20 +434,18 @@ function enableQr(root, params) {
   });
 }
 
-function disableQr(root, params) {
-  let {token} = params.viewer;
-
-  return jwtwrapper(token, (decoded) => {
+function disableQr(_, params, {user, errs}) {
+  return jwtwrapper(user, errs, MGMT, () => {
     let status = disableQR(params.festID);
 
     if (status.code === 1)
       return {
-        flag: false,
+        status_code: 420,
         errors: status.status
       };
 
     return {
-      flag: true,
+      status_code: 200,
       errors: status.status
     };
   });
@@ -496,12 +485,9 @@ function verify(root, params) {
   });
 }
 
-// function updateAttendance(userDoc, festId, verificationCode) {
 function updateAttendance(_, {festID,code}, {user,errs}) {
   // TODO modify update attendance
-  // let userDoc = db.collection('users').doc(params.user_email);
   let festDoc = db.collection('fests').doc(festID);
-  // let verificationCode = params.code;
 
   return jwtwrapper(user, errs, 1, (user) => {
     return festDoc.get()

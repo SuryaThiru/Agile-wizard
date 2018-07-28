@@ -167,16 +167,14 @@ let mutationType = new GraphQLObjectType({
     enableQr: {
       type: generalResponse,
       args: {
-        festID: {type: GraphQLString},
-        viewer:{type: viewerInput}
+        festID: {type: GraphQLString}
       },
       resolve: enableQr
     },
     disableQr: {
       type: generalResponse,
       args: {
-        festID: {type: GraphQLString},
-        viewer:{type: viewerInput}
+        festID: {type: GraphQLString}
       },
       resolve: disableQr
     },

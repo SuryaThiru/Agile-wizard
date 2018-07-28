@@ -251,10 +251,10 @@ query finduser {
 }
 ```
 
-#### Enable the qr generator 
+#### Enable the qr generator
 ```
 mutation enableQR {
-  enableQr(festID: <string>, viewer:{token: <token>}) {
+  enableQr(festID: <string>) {
     status_code
     errors
   }
@@ -264,7 +264,7 @@ mutation enableQR {
 #### Disable the qr generator 
 ```
 mutation disableQR {
-  disableQr(festID: <string>, viewer:{token: <token>}) {
+  disableQr(festID: <string>) {
     status_code
     errors
   }

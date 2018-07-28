@@ -2,7 +2,7 @@ const QRcode = require('qrcode');
 const crypto = require('crypto');
 const db = require('../db')();
 
-const updateInterval = 10; // udpate every few sec
+const updateInterval = 20; // udpate every few sec
 let festsBuffer = {};
 
 function updateqrURL(doc, timer, festID) {
@@ -49,10 +49,12 @@ function getQR(value) {
 }
 
 function enableQR(festId) {
+  // status code 1 to indicate errors
   let doc = db.collection('fests').doc(festId);
 
   if (festsBuffer[festId])
     return {
+      code: 1,
       status: 'qr loop already running'
     };
 
@@ -60,6 +62,7 @@ function enableQR(festId) {
     .then(dat => {
         if (!dat.exists) {
           return {
+            code: 1,
             status: 'fest is not currently active'
           };
         }
@@ -103,7 +106,6 @@ function disableQR(festId) {
   console.log('stopped qr loop for ' + festId);
 
   return {
-    code: 0,
     status: 'stopped qr loop'
   };
 }
