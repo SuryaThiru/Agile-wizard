@@ -334,6 +334,16 @@ query campaigns {
 ``` 
 __Note__: `sourceURLs` is a stringified JSON containing redirect urls for all sources
 
+#### DSC Auth update
+```
+mutation dsc {
+  dscAuthUpdate(code: <string>) {
+    status_code
+    errors
+  }
+}
+```
+__Note__: `code` is the scanned qr code value
 
 ## Contributing
 * don't push to master directly

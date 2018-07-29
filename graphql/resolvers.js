@@ -229,7 +229,7 @@ function createUser(root, params) {
 
 function editUser(root, params, {user, errs}) {
 
-  return jwtwrapper(user, errs, 2, () => {
+  return jwtwrapper(user, errs, ALL, () => {
     let userData = JSON.parse(JSON.stringify(params.user));
 
     if (user.email !== userData.email)  // ensure the user is the one editing
@@ -881,6 +881,36 @@ function getCampaigns(_, {festID}, {user, errs}) {
   });
 }
 
+function dscAuthUpdate(_, {code}, {user, errs}) {
+  // provides user details to clients requesting from DSC auth
+  return jwtwrapper(user, errs, ALL, () => {
+    let {email} = user;
+
+    return db.collection("users").doc(email).get()
+      .then(doc => {
+        let userDetails = doc.data();
+        delete userDetails.password;
+
+        return db.collection('hashes').doc(code).set({
+          user_details: JSON.stringify(userDetails)
+        })
+          .then(() => {
+            return {
+              status_code: 200,
+              errors: null
+            };
+        });
+      })
+      .catch(err => {
+        let message = formatErrors(err);
+        return {
+          status_code: 400,
+          errors: message
+        };
+      });
+  });
+}
+
 module.exports = {
   findUser: findUser,
   getCarpenterFests: getCarpenterFests,
@@ -903,5 +933,6 @@ module.exports = {
   editBlog: editBlog,
   getBlogs: getBlogs,
   createCampaign: createCampaign,
-  getCampaigns: getCampaigns
+  getCampaigns: getCampaigns,
+  dscAuthUpdate: dscAuthUpdate
 };

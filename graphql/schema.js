@@ -58,7 +58,8 @@ const {
   editBlog,
   getBlogs,
   createCampaign,
-  getCampaigns
+  getCampaigns,
+  dscAuthUpdate
 } = require('./resolvers');
 
 
@@ -230,6 +231,13 @@ let mutationType = new GraphQLObjectType({
         metaTitle: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: createCampaign
+    },
+    dscAuthUpdate: {
+      type: generalResponse,
+      args: {
+        code: {type: new GraphQLNonNull(GraphQLString)}
+      },
+      resolve: dscAuthUpdate
     }
   }
 });
